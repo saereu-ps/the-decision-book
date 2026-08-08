@@ -114,44 +114,40 @@ document.addEventListener('click', () => {
     startAmbientDrone();
 }, { once: true });
 
-let currentTtsAudio = null;
+// Pre-load voices for Safari/Chrome
+if ('speechSynthesis' in window) {
+    window.speechSynthesis.onvoiceschanged = () => {
+        window.speechSynthesis.getVoices();
+    };
+}
 
-async function speakAnswer(text) {
-    // Stop any currently playing audio
-    if (currentTtsAudio) {
-        currentTtsAudio.pause();
-        currentTtsAudio.currentTime = 0;
-    }
+function speakAnswer(text) {
+    if (!('speechSynthesis' in window)) return;
     
-    // Remove HTML tags if the answer contains them
+    // Stop any currently playing speech
+    window.speechSynthesis.cancel();
+    
     const cleanText = text.replace(/<[^>]*>?/gm, '').trim();
     if (!cleanText) return;
     
+    const utterance = new SpeechSynthesisUtterance(cleanText);
+    utterance.lang = 'th-TH'; // Thai language
+    
+    const voices = window.speechSynthesis.getVoices();
+    const thaiVoices = voices.filter(v => v.lang.includes('th') || v.lang === 'th-TH');
+    
+    if (thaiVoices.length > 0) {
+        // Try to pick the default Thai voice available
+        utterance.voice = thaiVoices[0];
+    }
+    
     const isRudeMode = document.getElementById('rudeSwitch') ? document.getElementById('rudeSwitch').checked : false;
     
-    try {
-        const response = await fetch('/api/tts', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                text: cleanText,
-                isRude: isRudeMode
-            })
-        });
-        
-        const data = await response.json();
-        
-        if (data.audioContent) {
-            currentTtsAudio = new Audio('data:audio/mp3;base64,' + data.audioContent);
-            currentTtsAudio.play().catch(e => console.error("Audio Play Error:", e));
-        } else {
-            console.error("TTS API Error:", data.error);
-        }
-    } catch (e) {
-        console.error("Failed to connect to TTS API:", e);
-    }
+    // Drop the pitch significantly to simulate a male/deep voice if the OS default is female
+    utterance.pitch = isRudeMode ? 0.3 : 0.5; 
+    utterance.rate = 1.0; 
+    
+    window.speechSynthesis.speak(utterance);
 }
 
 function playBoom() {
