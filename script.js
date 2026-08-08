@@ -366,8 +366,17 @@ document.addEventListener('DOMContentLoaded', () => {
     let isCharging = false;
     let chargeStartTime = 0;
 
+    let hasRequestedGyro = false;
+
     function startCharging() {
         if (isAnimating) return;
+        
+        // Request Gyroscope permission for iOS 13+ on first interaction
+        if (!hasRequestedGyro && typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
+            DeviceOrientationEvent.requestPermission().catch(console.error);
+            hasRequestedGyro = true;
+        }
+        
         isCharging = true;
         chargeStartTime = Date.now();
         catScene.classList.add('charging');
@@ -428,8 +437,6 @@ document.addEventListener('DOMContentLoaded', () => {
             finalAnswerToReveal = "ความรักอยู่รอบตัวคุณ รออีกนิดเดี๋ยวก็มา 💖";
         } else if (qLower.includes("the matrix")) {
             finalAnswerToReveal = "Wake up... The Matrix has you.";
-        } else if (qLower === "") {
-            finalAnswerToReveal = "คุณไม่ได้ถามอะไรเลย... แต่คำตอบคือ 'ลุยเลย!'";
         } else if (qLower.includes("เหนื่อย") || qLower.includes("ท้อ")) {
             finalAnswerToReveal = "พักผ่อนเถอะนะ พรุ่งนี้ค่อยเริ่มใหม่ เป็นกำลังใจให้";
         } else if (qLower.includes("สอบ") || qLower.includes("เกรด")) {
