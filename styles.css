@@ -717,19 +717,65 @@ input[type="text"]:focus {
         transition: transform 0.3s;
     }
 
-    /* Theme Toggle Mobile Fix */
+    /* Mobile Theme Toggle Redesign (Circular Buttons at Top Right) */
     .theme-toggle-container {
         position: absolute;
-        top: 15px;
-        left: 50%;
-        transform: translateX(-50%);
-        right: auto;
-        z-index: 99999;
-        flex-direction: row; /* side by side */
-        gap: 20px;
+        top: 20px;
+        right: 20px;
+        left: auto;
+        transform: none;
+        flex-direction: row;
+        gap: 12px;
         width: auto;
+        justify-content: flex-end;
+        z-index: 99999;
+    }
+
+    .theme-label {
+        width: 44px;
+        height: 44px;
+        border-radius: 50%;
+        padding: 0;
+        justify-content: center;
+        background-color: var(--container-bg);
+        border: 1px solid var(--gold);
+        backdrop-filter: blur(10px);
+        box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+    }
+
+    /* Hide the sliding ball on mobile */
+    .toggle-ball { display: none; }
+
+    /* Center icons inside the circular button */
+    .theme-label .icon {
+        position: absolute;
+        width: 22px;
+        height: 22px;
+        transition: opacity 0.3s, transform 0.3s, color 0.3s;
+        margin: 0;
+        display: flex;
+        align-items: center;
         justify-content: center;
     }
+    
+    .theme-label .icon svg {
+        width: 20px;
+        height: 20px;
+    }
+
+    /* Day/Night Icons */
+    .icon.moon { opacity: 1; transform: scale(1); }
+    .icon.sun { opacity: 0; transform: scale(0.5); }
+    .theme-checkbox:checked + .theme-label .icon.moon { opacity: 0; transform: scale(0.5); }
+    .theme-checkbox:checked + .theme-label .icon.sun { opacity: 1; transform: scale(1); color: var(--bg-dark); }
+    .theme-checkbox:checked + .theme-label { background-color: var(--gold); }
+
+    /* Rude Mode Icons */
+    .icon.sparkle { opacity: 1; transform: scale(1); }
+    .icon.flame { opacity: 0; transform: scale(0.5); }
+    .rude-checkbox:checked + .rude-label .icon.sparkle { opacity: 0; transform: scale(0.5); }
+    .rude-checkbox:checked + .rude-label .icon.flame { opacity: 1; transform: scale(1); color: var(--bg-dark); }
+    .rude-checkbox:checked + .rude-label { background-color: var(--gold); }
 
     /* Container */
     .container {
