@@ -114,45 +114,39 @@ document.addEventListener('click', () => {
     startAmbientDrone();
 }, { once: true });
 
-// Pre-load voices for Safari/Chrome
-if ('speechSynthesis' in window) {
-    window.speechSynthesis.onvoiceschanged = () => {
-        window.speechSynthesis.getVoices();
-    };
-}
+let currentTtsAudio = null;
 
 function speakAnswer(text) {
-    if (!('speechSynthesis' in window)) return;
-    
-    // Stop any currently playing speech
-    window.speechSynthesis.cancel();
+    // Stop any currently playing audio
+    if (currentTtsAudio) {
+        currentTtsAudio.pause();
+        currentTtsAudio.currentTime = 0;
+    }
     
     // Remove HTML tags if the answer contains them
     const cleanText = text.replace(/<[^>]*>?/gm, '').trim();
+    if (!cleanText) return;
     
-    const utterance = new SpeechSynthesisUtterance(cleanText);
-    utterance.lang = 'th-TH'; // Thai language
+    // Use Google Translate's unofficial TTS endpoint for a high-quality, consistent Thai voice
+    const url = `https://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&tl=th&q=${encodeURIComponent(cleanText)}`;
     
-    // Try to find the most natural sounding Thai voice available on the device
-    const voices = window.speechSynthesis.getVoices();
-    const thaiVoices = voices.filter(v => v.lang.includes('th') || v.lang === 'th-TH');
+    currentTtsAudio = new Audio(url);
+    currentTtsAudio.crossOrigin = "anonymous";
     
-    if (thaiVoices.length > 0) {
-        // Prefer voices that have "Premium", "Siri", or "Natural" in their name
-        const premiumVoice = thaiVoices.find(v => 
-            v.name.includes('Premium') || 
-            v.name.includes('Siri') || 
-            v.name.includes('Natural')
-        );
-        utterance.voice = premiumVoice || thaiVoices[0];
+    // Use normal pitch for normal mode, slightly deeper/slower for rude mode
+    const isRudeMode = document.getElementById('rudeSwitch') ? document.getElementById('rudeSwitch').checked : false;
+    
+    if (isRudeMode) {
+        // Disable pitch preservation to lower the pitch when slowing down
+        currentTtsAudio.preservesPitch = false; 
+        currentTtsAudio.mozPreservesPitch = false;
+        currentTtsAudio.webkitPreservesPitch = false;
+        currentTtsAudio.playbackRate = 0.85; // Makes it sound deeper and more sarcastic
     }
     
-    // Use normal pitch for normal mode, slightly lower for rude mode
-    const isRudeMode = document.getElementById('rudeSwitch') ? document.getElementById('rudeSwitch').checked : false;
-    utterance.pitch = isRudeMode ? 0.85 : 1.0; 
-    utterance.rate = 1.0; 
-    
-    window.speechSynthesis.speak(utterance);
+    currentTtsAudio.play().catch(e => {
+        console.error("Failed to play AI Voice:", e);
+    });
 }
 
 function playBoom() {
