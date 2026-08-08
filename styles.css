@@ -554,11 +554,21 @@ input[type="text"]:focus {
     width: 100%;
     height: 100%;
     backface-visibility: hidden;
-    border-radius: 16px;
+    border-radius: 12px;
     background: var(--card-bg);
-    box-shadow: 0 30px 60px rgba(0,0,0,0.8), 0 0 40px var(--glow-color);
-    border: 2px solid var(--gold);
+    box-shadow: 0 20px 40px rgba(0,0,0,0.8), 0 0 20px var(--glow-color);
+    border: 1px solid var(--gold);
     overflow: hidden;
+}
+
+.card-face::before {
+    content: '';
+    position: absolute;
+    top: 6px; left: 6px; right: 6px; bottom: 6px;
+    border: 1px solid rgba(247, 194, 84, 0.4);
+    border-radius: 8px;
+    pointer-events: none;
+    z-index: 10;
 }
 
 .card-border {
@@ -568,16 +578,35 @@ input[type="text"]:focus {
     padding: 30px 20px;
     display: flex;
     flex-direction: column;
-    z-index: 2;
+    z-index: 20;
 }
 
 .card-back {
     transform: rotateY(180deg);
-    background: url('tarot_back.png') center/cover no-repeat;
+    background: linear-gradient(135deg, #0f081c, #1c1132);
+}
+
+.card-back::after {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background-image: 
+        repeating-linear-gradient(45deg, rgba(247, 194, 84, 0.05) 0, rgba(247, 194, 84, 0.05) 1px, transparent 1px, transparent 15px),
+        repeating-linear-gradient(-45deg, rgba(247, 194, 84, 0.05) 0, rgba(247, 194, 84, 0.05) 1px, transparent 1px, transparent 15px);
+    z-index: 1;
 }
 
 .card-front {
-    background: url('tarot_front.png') center/cover no-repeat;
+    background: var(--card-front-gradient);
+}
+
+.card-front::after {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: radial-gradient(circle at center, transparent 0%, rgba(0,0,0,0.4) 100%);
+    pointer-events: none;
+    z-index: 1;
 }
 
 .close-btn {
@@ -627,12 +656,13 @@ input[type="text"]:focus {
 
 .answer-text {
     font-family: 'Prompt', sans-serif;
-    font-size: 1.6rem;
-    font-weight: 600;
-    color: var(--text-primary);
+    font-size: 1.5rem;
+    font-weight: 400;
+    color: var(--gold);
     text-align: center;
-    line-height: 1.5;
-    text-shadow: 0 2px 10px var(--glow-color);
+    line-height: 1.6;
+    letter-spacing: 0.5px;
+    text-shadow: 0 0 15px var(--glow-color);
 }
 
 .answer-text svg {
