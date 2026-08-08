@@ -138,10 +138,30 @@ document.addEventListener('mousemove', (e) => {
     }
 });
 
-// 3D Holographic Tilt Effect for the Cat
+// 3D Holographic Tilt Effect for Desktop
 const catScene = document.getElementById('catButton');
 const catImg = document.getElementById('catImage');
 const cardReflection = document.getElementById('cardReflection');
+
+// --- Gyroscope Parallax for Mobile ---
+window.addEventListener('deviceorientation', (e) => {
+    if (!e.gamma || !e.beta) return;
+    
+    // gamma is left-to-right tilt (-90 to 90)
+    // beta is front-to-back tilt (-180 to 180)
+    let xTilt = Math.max(-30, Math.min(30, e.gamma)); 
+    let yTilt = Math.max(-30, Math.min(30, e.beta - 45)); // assume resting phone angle is ~45deg
+    
+    // Move background opposite to tilt
+    dynamicBg.style.transform = `translate(${xTilt * -1}px, ${yTilt * -1}px)`;
+    
+    // Tilt the cat
+    catImg.style.transform = `scale(1.05) rotateX(${yTilt * -0.5}deg) rotateY(${xTilt * 0.5}deg)`;
+    
+    const bgPosX = 50 + (xTilt * 2);
+    const bgPosY = 50 + (yTilt * 2);
+    cardReflection.style.backgroundPosition = `${bgPosX}% ${bgPosY}%`;
+});
 
 catScene.addEventListener('mousemove', (e) => {
     // Get dimensions and center of the scene
@@ -352,6 +372,10 @@ document.addEventListener('DOMContentLoaded', () => {
         chargeStartTime = Date.now();
         catScene.classList.add('charging');
         startChargeSound();
+        if (navigator.vibrate) {
+            // Pulse vibration to simulate charging
+            navigator.vibrate([50, 150, 50, 150, 100, 100, 100, 100, 200, 50, 200]);
+        }
     }
 
     function stopCharging(triggerOracle) {
@@ -359,6 +383,7 @@ document.addEventListener('DOMContentLoaded', () => {
         isCharging = false;
         catScene.classList.remove('charging');
         stopChargeSound();
+        if (navigator.vibrate) navigator.vibrate(0); // Stop charging vibration
 
         const chargeDuration = Date.now() - chargeStartTime;
         
@@ -384,11 +409,32 @@ document.addEventListener('DOMContentLoaded', () => {
         catScene.classList.add('animating');
         
         playBoom();
+        if (navigator.vibrate) navigator.vibrate([200, 50, 300]); // Heavy boom vibration
 
         const question = questionInput.value.trim();
         const finalQuestion = question === "" ? "สิ่งที่คุณกำลังคิดอยู่..." : `"${question}"`;
 
         const randomAnswerObj = answers[Math.floor(Math.random() * answers.length)];
+        
+        // --- Secret Easter Eggs ---
+        let finalAnswerToReveal = randomAnswerObj;
+        const qLower = question.toLowerCase();
+        
+        if (qLower.includes("หิว") || qLower.includes("กินอะไรดี") || qLower.includes("กินไรดี")) {
+            finalAnswerToReveal = "แมวแนะนำให้ไปหาปลาทูทอดกินนะ เมี๊ยว~";
+        } else if (qLower.includes("ถูกหวย") || qLower.includes("รวยไหม") || qLower.includes("รางวัลที่ 1")) {
+            finalAnswerToReveal = "เตรียมตัวเป็นเศรษฐีได้เลย! (แต่ต้องซื้อให้ถูกเลขนะ)";
+        } else if (qLower.includes("แฟน") || qLower.includes("ความรัก") || qLower.includes("เนื้อคู่") || qLower.includes("คนคุย")) {
+            finalAnswerToReveal = "ความรักอยู่รอบตัวคุณ รออีกนิดเดี๋ยวก็มา 💖";
+        } else if (qLower.includes("the matrix")) {
+            finalAnswerToReveal = "Wake up... The Matrix has you.";
+        } else if (qLower === "") {
+            finalAnswerToReveal = "คุณไม่ได้ถามอะไรเลย... แต่คำตอบคือ 'ลุยเลย!'";
+        } else if (qLower.includes("เหนื่อย") || qLower.includes("ท้อ")) {
+            finalAnswerToReveal = "พักผ่อนเถอะนะ พรุ่งนี้ค่อยเริ่มใหม่ เป็นกำลังใจให้";
+        } else if (qLower.includes("สอบ") || qLower.includes("เกรด")) {
+            finalAnswerToReveal = "อ่านหนังสือเพิ่มอีกนิด ผ่านฉลุยแน่นอน!";
+        }
 
         // Dramatic Reveal Sequence
         flashBang.classList.remove('hidden');
@@ -410,7 +456,7 @@ document.addEventListener('DOMContentLoaded', () => {
             answerOverlay.classList.remove('hidden');
             
             // Start the Decypher scramble effect (lasts 2 seconds)
-            startDecypherEffect(answerText, randomAnswerObj, 2000);
+            startDecypherEffect(answerText, finalAnswerToReveal, 2000);
             
             // Stop cat animation
             catScene.classList.remove('animating');
