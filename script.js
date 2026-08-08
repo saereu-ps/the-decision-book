@@ -539,6 +539,16 @@ document.addEventListener('DOMContentLoaded', () => {
                 finalAnswerToReveal = "พักผ่อนเถอะนะ พรุ่งนี้ค่อยเริ่มใหม่ เป็นกำลังใจให้";
             } else if (qLower.includes("สอบ") || qLower.includes("เกรด")) {
                 finalAnswerToReveal = "อ่านหนังสือเพิ่มอีกนิด ผ่านฉลุยแน่นอน!";
+            } else if (qLower.includes("งาน") || qLower.includes("เจ้านาย") || qLower.includes("สัมภาษณ์") || qLower.includes("โปรเจกต์") || qLower.includes("ลาออก") || qLower.includes("ทำงาน")) {
+                const workResponses = [
+                    "สู้ต่อไป ทาเคชิ! เจ้านายรอประเมินอยู่",
+                    "ลาออกเลยสิ รออะไร! (หยอกๆ อดทนไว้นะ)",
+                    "งานหนักไม่เคยฆ่าใคร แต่ทำให้อยากตายเฉยๆ",
+                    "ความพยายามอยู่ที่ไหน ความสำเร็จอยู่ที่นั่น ลุยเลย!",
+                    "พักผ่อนบ้างนะ งานไม่ได้หนีไปไหนหรอก",
+                    "เตรียมรับข่าวดีเรื่องงานเร็วๆ นี้!"
+                ];
+                finalAnswerToReveal = workResponses[Math.floor(Math.random() * workResponses.length)];
             }
         }
 
