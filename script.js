@@ -36,6 +36,30 @@ function playBoom() {
     osc.stop(audioCtx.currentTime + 0.8);
 }
 
+function playHeartbeat() {
+    if(audioCtx.state === 'suspended') audioCtx.resume();
+    const time = audioCtx.currentTime;
+
+    function createThump(startTime) {
+        const osc = audioCtx.createOscillator();
+        const gainNode = audioCtx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(100, startTime);
+        osc.frequency.exponentialRampToValueAtTime(0.01, startTime + 0.3);
+        
+        gainNode.gain.setValueAtTime(1.0, startTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.001, startTime + 0.3);
+        
+        osc.connect(gainNode);
+        gainNode.connect(audioCtx.destination);
+        osc.start(startTime);
+        osc.stop(startTime + 0.3);
+    }
+
+    createThump(time);
+    createThump(time + 0.2); // Second thump 200ms later
+}
+
 let chargingOsc = null;
 let chargingGain = null;
 let purrOsc = null;
@@ -553,7 +577,11 @@ document.addEventListener('DOMContentLoaded', () => {
         
         // If held for >500ms and triggerOracle is true, BOOM!
         if (triggerOracle && chargeDuration > 500) {
-            executeOracleReveal();
+            playHeartbeat();
+            if (navigator.vibrate) navigator.vibrate([100, 100, 100]); // Heartbeat vibration
+            setTimeout(() => {
+                executeOracleReveal();
+            }, 600); // 600ms suspense pause
         } else if (triggerOracle && chargeDuration <= 200) {
             // Secret Knock Logic: 3 rapid taps with empty input
             const question = questionInput.value.trim();
@@ -592,6 +620,35 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const question = questionInput.value.trim();
         const finalQuestion = question === "" ? "สิ่งที่คุณกำลังคิดอยู่..." : `"${question}"`;
+
+        // --- God Mode Trigger ---
+        if (question.toLowerCase() === "god mode") {
+            document.body.classList.toggle('god-mode');
+            const isGodMode = document.body.classList.contains('god-mode');
+            
+            flashBang.classList.remove('hidden');
+            flashBang.classList.add('active');
+            magicExplosion.classList.remove('hidden');
+            magicExplosion.classList.add('burst');
+
+            setTimeout(() => {
+                flashBang.classList.remove('active');
+                setTimeout(() => flashBang.classList.add('hidden'), 300);
+                magicExplosion.classList.remove('burst');
+                magicExplosion.classList.add('hidden');
+
+                questionDisplay.textContent = "[ THEME UNLOCKED ]";
+                answerText.innerHTML = "";
+                answerOverlay.classList.remove('hidden');
+                
+                const godMsg = isGodMode ? "เจ้าได้ปลุกพลังศักดิ์สิทธิ์ขึ้นมาแล้ว..." : "พลังศักดิ์สิทธิ์หลับใหลลงอีกครั้ง...";
+                startDecypherEffect(answerText, godMsg, 2000);
+                
+                catScene.classList.remove('animating');
+                isAnimating = false;
+            }, 600);
+            return;
+        }
 
         let randomAnswerObj;
         do {
