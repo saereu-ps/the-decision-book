@@ -197,101 +197,66 @@ catScene.addEventListener('mouseenter', () => {
 });
 
 const answers = [
-    // --- Thai Positive ---
-    "แน่นอนที่สุด",
-    "เป็นไปได้สูงมาก",
-    "ใช่เลยล่ะ!",
-    "ไร้ข้อกังขา",
-    "คุณมาถูกทางแล้ว",
-    "เชื่อสัญชาตญาณของคุณเถอะ",
-    "ผลลัพธ์จะออกมาดีเยี่ยม",
+    // --- Strong YES ---
+    "แน่นอนที่สุด ทำเลย!",
+    "เป็นไปได้สูงมาก ลุย!",
+    "ใช่เลยล่ะ ไม่มีอะไรต้องลังเล",
+    "ไร้ข้อกังขา ดำเนินการทันที",
+    "ผลลัพธ์จะออกมาดีเยี่ยมแน่นอน",
     "ลุยเลย รออะไรอยู่!",
     "ทุกอย่างเป็นใจให้คุณ",
-    "ใช่! ทำมันเลย",
-    "เวลาที่เหมาะสมคือตอนนี้",
-    "ความสำเร็จรออยู่",
-    "ไม่ต้องลังเล",
-    "เทพเจ้าแมวอวยพรคุณ",
-    "เป็นไอเดียที่ยอดเยี่ยมมาก",
+    "คำตอบคือ 'ใช่!' 100%",
+    "เวลาที่เหมาะสมที่สุดคือตอนนี้",
+    "ความสำเร็จรออยู่ตรงหน้า",
+    "เทพเจ้าแมวขอฟันธงว่า 'เอาเลย!'",
+    "เป็นไอเดียที่ยอดเยี่ยมที่สุด",
     "ก้าวต่อไป อย่าหยุด",
-    "การตัดสินใจที่ดีที่สุด",
-    "พลังบวกมาเต็ม",
+    "การตัดสินใจที่ดีที่สุดในชีวิต",
+    "พลังบวกมาเต็ม ลุยให้สุด!",
+    "ไฟเขียวผ่านฉลุย!",
+    "ไม่มีทางพลาดแน่นอน",
+    "โอกาสแบบนี้ไม่ได้มีบ่อยๆ คว้าไว้!",
+    "ชนะใสๆ ไม่ต้องสืบ",
+    "เชื่อมั่นในตัวเอง แล้วทำเลย!",
     
-    // --- Thai Negative ---
-    "อย่าเพิ่งเลยดีกว่า",
-    "ยังไม่ใช่ตอนนี้",
-    "โอกาสสำเร็จน้อยมาก",
-    "พักก่อนเถอะนะ",
-    "ลองคิดทบทวนดูอีกที",
-    "แมวส่ายหัวให้สิ่งนี้",
-    "หยุดความคิดนั้นซะ",
-    "มีอุปสรรคใหญ่รออยู่",
-    "ยังไม่พร้อมหรอก",
-    "เสี่ยงเกินไป",
-    "ผลลัพธ์อาจไม่เป็นอย่างที่คิด",
-    "เปลี่ยนแผนเถอะ",
-    "ใจเย็นๆ แล้วถอยมาก้าวหนึ่ง",
-    "วันนี้ยังไม่ใช่วันของคุณ",
+    // --- Strong NO ---
+    "อย่าทำเด็ดขาด!",
+    "หยุดความคิดนั้นซะ ตอนนี้เลย",
+    "โอกาสพังพินาศสูงมาก",
+    "ไม่มีทางเป็นไปได้",
+    "ถอยออกมาเดี๋ยวนี้!",
+    "แมวส่ายหัวรัวๆ คำตอบคือ 'ไม่!'",
+    "หายนะกำลังรออยู่ เลิกคิดซะ",
+    "มีอุปสรรคใหญ่รออยู่ อย่าเสี่ยง",
+    "ยังไม่พร้อมหรอก พับโปรเจกต์ไปก่อน",
+    "เสี่ยงเกินไป ไม่คุ้มค่าเหนื่อย",
+    "ผลลัพธ์จะเลวร้ายกว่าที่คิด",
+    "เปลี่ยนแผนเถอะ เชื่อข้า",
+    "ทางตัน อย่าดันทุรัง",
+    "วันนี้และวันหน้า ก็ยังไม่ใช่วันของคุณในเรื่องนี้",
+    "พังแน่นอน ห้ามทำ!",
+    "ล้มเลิกซะเถอะ ไม่รอดหรอก",
+    "แค่คิดก็ผิดแล้ว",
+    "เสียเวลาเปล่าๆ อย่าทำเลย",
+    "โอกาสรอดริบหรี่มาก",
+    "คำตอบคือ 'ไม่!' แบบไร้เยื่อใย",
     
-    // --- Thai Ambiguous / Action ---
-    "ลองถามใจตัวเองดูอีกครั้ง",
-    "คำตอบอยู่ในใจคุณแล้ว",
-    "รออีกนิดดีกว่า",
-    "ต้องใช้เวลามากกว่านี้",
-    "โฟกัสที่ปัจจุบันก่อน",
-    "ลองปรึกษาคนใกล้ตัวดู",
-    "อนาคตไม่แน่นอน",
-    "ขึ้นอยู่กับการกระทำของคุณ",
-    "ความอดทนคือสิ่งที่จำเป็น",
-    "ตั้งสติก่อนตัดสินใจ",
-    "ลองมองในมุมกลับดูบ้าง",
-    "ต้องการข้อมูลเพิ่มเติม",
-    "คำตอบยังไม่ชัดเจนในตอนนี้",
+    // --- Strong English ---
+    "Absolutely. Do it!",
+    "Without a doubt, YES.",
+    "Go for it right now!",
+    "Green light, full speed ahead!",
+    "My reply is a hard NO.",
+    "Stop. Don't do it.",
+    "Too risky. Abort mission.",
+    "Never in a million years.",
     
-    // --- English Positive ---
-    "Absolutely.",
-    "Without a doubt.",
-    "Yes, definitely.",
-    "Most likely.",
-    "Outlook good.",
-    "Signs point to yes.",
-    "Go for it!",
-    "Trust yourself.",
-    "This is your moment.",
-    "Do it now.",
-    "Unquestionably.",
-    "Green light!",
-    
-    // --- English Negative ---
-    "Don't count on it.",
-    "My reply is no.",
-    "Outlook not so good.",
-    "Very doubtful.",
-    "Not the right time.",
-    "Reconsider your options.",
-    "Better not.",
-    "Hard no.",
-    "Try a different approach.",
-    "Too risky.",
-    
-    // --- English Ambiguous / Action ---
-    "Ask again later.",
-    "Cannot predict now.",
-    "Concentrate and ask again.",
-    "Focus on what you can control.",
-    "The future is unwritten.",
-    "Follow your heart.",
-    "More information needed.",
-    "Embrace the uncertainty.",
-    
-    // --- Line Art Symbols (replaces Emojis) ---
-    `${svgCheck} <div>ไปได้สวย</div>`,
-    `${svgCross} <div>อย่าเสี่ยงดีกว่า</div>`,
-    `${svgStar} <div>ผลลัพธ์ระดับ 5 ดาว</div>`,
-    `${svgQuestion} <div>สถานการณ์ยังคลุมเครือ</div>`,
-    `${svgLightning} <div>ลงมือทำทันที</div>`,
-    `${svgClock} <div>อดทนรออีกสักนิด</div>`,
-    `${svgHeart} <div>ทำตามเสียงหัวใจ</div>`
+    // --- Decisive Line Art Symbols ---
+    `${svgCheck} <div>ไปได้สวย ลุยเลย!</div>`,
+    `${svgCheck} <div>ถูกต้องที่สุด!</div>`,
+    `${svgCross} <div>อย่าเสี่ยงเด็ดขาด!</div>`,
+    `${svgCross} <div>หยุดดันทุรัง!</div>`,
+    `${svgLightning} <div>ลงมือทำทันที!</div>`
 ];
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -367,6 +332,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let chargeStartTime = 0;
 
     let hasRequestedGyro = false;
+    let recentAnswers = []; // Keep track of recent answers to prevent repeats
 
     function startCharging() {
         if (isAnimating) return;
@@ -423,7 +389,15 @@ document.addEventListener('DOMContentLoaded', () => {
         const question = questionInput.value.trim();
         const finalQuestion = question === "" ? "สิ่งที่คุณกำลังคิดอยู่..." : `"${question}"`;
 
-        const randomAnswerObj = answers[Math.floor(Math.random() * answers.length)];
+        let randomAnswerObj;
+        do {
+            randomAnswerObj = answers[Math.floor(Math.random() * answers.length)];
+        } while (recentAnswers.includes(randomAnswerObj));
+        
+        recentAnswers.push(randomAnswerObj);
+        if (recentAnswers.length > 15) { // Prevent the last 15 answers from repeating immediately
+            recentAnswers.shift();
+        }
         
         // --- Secret Easter Eggs ---
         let finalAnswerToReveal = randomAnswerObj;
