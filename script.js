@@ -81,7 +81,7 @@ function startAmbientDrone() {
     // Random Magical Sparkles (A major pentatonic)
     const scale = [440, 493.88, 554.37, 659.25, 739.99, 880];
     
-    function playSparkle() {
+function playSparkle() {
         if(!ambientStarted) return;
         
         const osc = audioCtx.createOscillator();
@@ -113,6 +113,23 @@ function startAmbientDrone() {
 document.addEventListener('click', () => {
     startAmbientDrone();
 }, { once: true });
+
+function speakAnswer(text) {
+    if (!('speechSynthesis' in window)) return;
+    
+    // Stop any currently playing speech
+    window.speechSynthesis.cancel();
+    
+    // Remove HTML tags if the answer contains them
+    const cleanText = text.replace(/<[^>]*>?/gm, '').trim();
+    
+    const utterance = new SpeechSynthesisUtterance(cleanText);
+    utterance.lang = 'th-TH'; // Thai language
+    utterance.pitch = 0.8; // Slightly deeper, mysterious voice
+    utterance.rate = 1.0; 
+    
+    window.speechSynthesis.speak(utterance);
+}
 
 function playBoom() {
     if(audioCtx.state === 'suspended') audioCtx.resume();
@@ -932,6 +949,9 @@ document.addEventListener('DOMContentLoaded', () => {
             
             // Start the Decypher scramble effect (lasts 2 seconds)
             startDecypherEffect(answerText, finalAnswerToReveal, 2000);
+            
+            // Speak the answer aloud
+            speakAnswer(finalAnswerToReveal);
             
             // Stop cat animation
             catScene.classList.remove('animating');
