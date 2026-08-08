@@ -116,7 +116,7 @@ document.addEventListener('click', () => {
 
 let currentTtsAudio = null;
 
-function speakAnswer(text) {
+async function speakAnswer(text) {
     // Stop any currently playing audio
     if (currentTtsAudio) {
         currentTtsAudio.pause();
@@ -127,26 +127,31 @@ function speakAnswer(text) {
     const cleanText = text.replace(/<[^>]*>?/gm, '').trim();
     if (!cleanText) return;
     
-    // Use Google Translate's unofficial TTS endpoint for a high-quality, consistent Thai voice
-    const url = `https://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&tl=th&q=${encodeURIComponent(cleanText)}`;
-    
-    currentTtsAudio = new Audio(url);
-    currentTtsAudio.crossOrigin = "anonymous";
-    
-    // Use normal pitch for normal mode, slightly deeper/slower for rude mode
     const isRudeMode = document.getElementById('rudeSwitch') ? document.getElementById('rudeSwitch').checked : false;
     
-    if (isRudeMode) {
-        // Disable pitch preservation to lower the pitch when slowing down
-        currentTtsAudio.preservesPitch = false; 
-        currentTtsAudio.mozPreservesPitch = false;
-        currentTtsAudio.webkitPreservesPitch = false;
-        currentTtsAudio.playbackRate = 0.85; // Makes it sound deeper and more sarcastic
+    try {
+        const response = await fetch('/api/tts', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                text: cleanText,
+                isRude: isRudeMode
+            })
+        });
+        
+        const data = await response.json();
+        
+        if (data.audioContent) {
+            currentTtsAudio = new Audio('data:audio/mp3;base64,' + data.audioContent);
+            currentTtsAudio.play().catch(e => console.error("Audio Play Error:", e));
+        } else {
+            console.error("TTS API Error:", data.error);
+        }
+    } catch (e) {
+        console.error("Failed to connect to TTS API:", e);
     }
-    
-    currentTtsAudio.play().catch(e => {
-        console.error("Failed to play AI Voice:", e);
-    });
 }
 
 function playBoom() {
