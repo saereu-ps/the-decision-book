@@ -110,14 +110,26 @@ function playSparkle() {
     playSparkle(); // Start the sparkle loop
 }
 
+// Global audio object for TTS, unlocked on first interaction
+const ttsAudio = new Audio();
+let ttsUnlocked = false;
+
 document.addEventListener('click', () => {
     startAmbientDrone();
     
-    // Unlock Web Speech API for iOS Safari
+    // Unlock Web Speech API for iOS Safari (Fallback)
     if ('speechSynthesis' in window) {
         const unlockUtterance = new SpeechSynthesisUtterance('');
         unlockUtterance.volume = 0; // Silent
         window.speechSynthesis.speak(unlockUtterance);
+    }
+    
+    // Unlock the HTML5 Audio object for Google TTS on iOS
+    if (!ttsUnlocked) {
+        // A tiny base64 silent audio to initialize the engine
+        ttsAudio.src = 'data:audio/mp3;base64,//NExAAAAANIAAAAAExBTUUzLjEwMKqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq';
+        ttsAudio.play().catch(() => {});
+        ttsUnlocked = true;
     }
 }, { once: true });
 
@@ -129,26 +141,49 @@ if ('speechSynthesis' in window) {
 }
 
 function speakAnswer(text) {
-    if (!('speechSynthesis' in window)) return;
-    
-    // Stop any currently playing speech
-    window.speechSynthesis.cancel();
-    
     const cleanText = text.replace(/<[^>]*>?/gm, '').trim();
     if (!cleanText) return;
     
-    const utterance = new SpeechSynthesisUtterance(cleanText);
-    utterance.lang = 'th-TH'; // Thai language
+    const isRudeMode = document.getElementById('rudeSwitch') ? document.getElementById('rudeSwitch').checked : false;
+    
+    // Use Google Translate's unofficial TTS endpoint (No CORS, acts as a raw media file)
+    const url = `https://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&tl=th&q=${encodeURIComponent(cleanText)}`;
+    
+    // Reuse the globally unlocked audio object!
+    ttsAudio.src = url;
+    
+    if (isRudeMode) {
+        // Lower pitch/speed for sarcastic tone
+        ttsAudio.preservesPitch = false; 
+        ttsAudio.mozPreservesPitch = false;
+        ttsAudio.webkitPreservesPitch = false;
+        ttsAudio.playbackRate = 0.85; 
+    } else {
+        ttsAudio.preservesPitch = true;
+        ttsAudio.mozPreservesPitch = true;
+        ttsAudio.webkitPreservesPitch = true;
+        ttsAudio.playbackRate = 1.0;
+    }
+    
+    ttsAudio.play().catch(e => {
+        console.error("Google TTS blocked or failed, falling back to Native TTS:", e);
+        fallbackNativeTTS(cleanText, isRudeMode);
+    });
+}
+
+function fallbackNativeTTS(text, isRudeMode) {
+    if (!('speechSynthesis' in window)) return;
+    window.speechSynthesis.cancel();
+    
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = 'th-TH';
     
     const voices = window.speechSynthesis.getVoices();
     const thaiVoices = voices.filter(v => v.lang.includes('th') || v.lang === 'th-TH');
     
     if (thaiVoices.length > 0) {
-        // Try to pick the default Thai voice available
         utterance.voice = thaiVoices[0];
     }
-    
-    const isRudeMode = document.getElementById('rudeSwitch') ? document.getElementById('rudeSwitch').checked : false;
     
     // Drop the pitch significantly to simulate a male/deep voice if the OS default is female
     utterance.pitch = isRudeMode ? 0.3 : 0.5; 
