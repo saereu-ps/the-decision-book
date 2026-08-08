@@ -464,10 +464,10 @@ document.addEventListener('DOMContentLoaded', () => {
     themeSwitch.addEventListener('change', (e) => {
         if (e.target.checked) {
             document.body.classList.add('theme-day');
-            catImage.src = 'fortune_cat_day.png';
+            if (!document.body.classList.contains('god-mode')) catImage.src = 'fortune_cat_day.png';
         } else {
             document.body.classList.remove('theme-day');
-            catImage.src = 'fortune_cat.png';
+            if (!document.body.classList.contains('god-mode')) catImage.src = 'fortune_cat.png';
         }
     });
 
@@ -625,11 +625,18 @@ document.addEventListener('DOMContentLoaded', () => {
         if (question.toLowerCase() === "god mode") {
             document.body.classList.toggle('god-mode');
             const isGodMode = document.body.classList.contains('god-mode');
+            const catImage = document.getElementById('catImage');
             
             flashBang.classList.remove('hidden');
             flashBang.classList.add('active');
             magicExplosion.classList.remove('hidden');
             magicExplosion.classList.add('burst');
+
+            if (isGodMode) {
+                catImage.src = 'cat_god_mode.png';
+            } else {
+                catImage.src = document.body.classList.contains('theme-day') ? 'fortune_cat_day.png' : 'fortune_cat.png';
+            }
 
             setTimeout(() => {
                 flashBang.classList.remove('active');
