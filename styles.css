@@ -742,8 +742,11 @@ body.god-mode {
     --orb-glow-intense: rgba(255, 215, 0, 0.8);
 }
 
-body.god-mode .bg-image {
+body.god-mode .dynamic-bg {
     background-image: url('bg_god_mode.png');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
     filter: brightness(0.9) contrast(1.1);
 }
 
