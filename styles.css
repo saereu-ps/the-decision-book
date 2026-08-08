@@ -220,6 +220,27 @@ body {
     transform: translateX(36px);
 }
 
+/* 18+ Mode specific toggle styles */
+.rude-label {
+    width: 60px;
+    height: 30px;
+}
+.rude-label .icon {
+    font-size: 14px;
+    filter: none;
+}
+.rude-ball {
+    width: 24px;
+    height: 24px;
+    background-color: #ff4757;
+    top: 2px;
+    left: 3px;
+}
+.rude-checkbox:checked + .rude-label .rude-ball {
+    transform: translateX(30px);
+    background-color: #2ed573;
+}
+
 /* Main Container */
 .container {
     width: 90%;

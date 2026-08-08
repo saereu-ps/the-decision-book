@@ -270,6 +270,35 @@ catScene.addEventListener('mouseenter', () => {
     catImg.style.transition = `none`; // remove transition for instant tracking while hovering
 });
 
+const rudeAnswers = [
+    // Extremely rude / sarcastic / passive aggressive responses (SFW but harsh)
+    "ถามโง่ๆ... หุบปากแล้วไปทำซะ",
+    "เรื่องของมึง กูไม่เกี่ยว",
+    "สมองมีก็หัดคิดเองบ้างนะ",
+    "ปัญญาอ่อน... จะเอาอะไรกับแมววะ",
+    "ไปถามหมานู่น กูขี้เกียจตอบ",
+    "ไม่ต้องทำหรอก ทำไปก็เจ๊ง",
+    "เพ้อเจ้อ! ตื่นเถอะมึง",
+    "มั่นหน้าเนาะ... เอาที่มึงสบายใจ",
+    "ถามเพื่อ? สุดท้ายมึงก็ทำตามใจตัวเองอยู่ดี",
+    "สาระแนจริง เรื่องแค่นี้คิดเองไม่ได้รึไง",
+    "ชีวิตมึงพังแน่ ทำใจไว้เลย",
+    "รอให้หิมะตกในไทยก่อน ค่อยทำ",
+    "ไปตายซะ (หยอกๆ แต่ทำไปก็เจ๊งจริงๆ)",
+    "ประสาทแดก... กูรำคาญ",
+    "หัดพึ่งตัวเองบ้าง อย่ามารบกวนเวลาพักผ่อน",
+    "ความหวังเป็นศูนย์ ตัดใจเถอะ",
+    "มึงคิดว่ากูแคร์เหรอ? เหมียว!",
+    "ไร้สาระ! เอาเวลาไปนอนดีกว่า",
+    "ฝันไปเถอะ! ชาติหน้าตอนบ่ายๆ",
+    "ถ้าตอบว่า 'ดี' มึงจะเชื่อมั้ยล่ะ? โง่จริง",
+    "อย่าให้กูต้องด่า ไปทำอย่างอื่นไป",
+    "ทำไมมึงโง่จังวะ เรื่องแค่นี้ต้องถาม",
+    "นี่มึงจริงจังปะเนี่ย? ปัญญาอ่อนสุดๆ",
+    "เรื่องของมึง ชีวิตมึง มึงเลือกเอง",
+    "ก็ลองดูดิ... เตรียมผ้าเช็ดหน้าไว้ด้วยนะ"
+];
+
 const answers = [
     // --- Strong YES (เอาเลย!) ---
     "แน่นอนที่สุด ทำเลย!",
@@ -622,8 +651,11 @@ document.addEventListener('DOMContentLoaded', () => {
         const finalQuestion = question === "" ? "สิ่งที่คุณกำลังคิดอยู่..." : `"${question}"`;
 
         let randomAnswerObj;
+        const isRudeMode = document.getElementById('rudeSwitch').checked;
+        const currentAnswerPool = isRudeMode ? rudeAnswers : answers;
+
         do {
-            randomAnswerObj = answers[Math.floor(Math.random() * answers.length)];
+            randomAnswerObj = currentAnswerPool[Math.floor(Math.random() * currentAnswerPool.length)];
         } while (recentAnswers.includes(randomAnswerObj));
         
         recentAnswers.push(randomAnswerObj);
