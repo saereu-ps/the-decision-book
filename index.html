@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Decision Book | แมวหมอดูเวทมนตร์</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Chonburi&family=Lora:ital,wght@0,400;0,700;1,400&family=Prompt:wght@300;400;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Dynamic CSS Background -->
+    <div class="dynamic-bg" id="dynamicBg">
+        <div class="particles" id="particles"></div>
+        <div class="ambient-glow"></div>
+    </div>
+    
+    <!-- Theme Toggle at top right -->
+    <div class="theme-toggle-container">
+        <input type="checkbox" id="themeSwitch" class="theme-checkbox">
+        <label for="themeSwitch" class="theme-label">
+            <span class="icon moon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                </svg>
+            </span>
+            <span class="icon sun">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="5"></circle>
+                    <line x1="12" y1="1" x2="12" y2="3"></line>
+                    <line x1="12" y1="21" x2="12" y2="23"></line>
+                    <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                    <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                    <line x1="1" y1="12" x2="3" y2="12"></line>
+                    <line x1="21" y1="12" x2="23" y2="12"></line>
+                    <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                    <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                </svg>
+            </span>
+            <div class="toggle-ball"></div>
+        </label>
+    </div>
+    
+    <main class="container">
+        <header>
+            <h1 class="title-en">MYSTIC PAWS</h1>
+            <h2 class="title-th">The Decision Book</h2>
+            <p class="subtitle">จงตั้งสมาธิ และรับคำทำนายจากแม่หมอ</p>
+        </header>
+
+        <section class="interaction-area">
+            <div class="input-group">
+                <input type="text" id="questionInput" class="question-input" placeholder="พิมพ์คำถามของคุณ แล้วกดค้างที่รูปแมว..." autocomplete="off">
+            </div>
+
+            <!-- The Full Card Image with Crystal Ball Glow Overlay and Reflection -->
+            <div class="fortune-teller-scene" id="catButton">
+                <img src="fortune_cat.png" alt="Fortune Teller Cat" class="mystic-cat-img" id="catImage">
+                <!-- This glow is positioned exactly over the crystal ball in the image -->
+                <div class="magic-glow-overlay" id="crystalGlow"></div>
+                <!-- Glossy Foil Reflection for 3D Tilt -->
+                <div class="glossy-reflection" id="cardReflection"></div>
+                <!-- Magic explosion burst centered on cat -->
+                <div class="magic-explosion hidden" id="magicExplosion"></div>
+            </div>
+            
+            <p class="instruction">แตะที่ลูกแก้ววิเศษเพื่อเริ่มการทำนาย</p>
+        </section>
+    </main>
+
+    <!-- Dramatic Flash Overlay -->
+    <div class="flash-bang hidden" id="flashBang"></div>
+
+    <!-- Overlay for the Tarot Card reveal -->
+    <div class="overlay hidden" id="answerOverlay">
+        <div class="overlay-backdrop"></div>
+        
+        <div class="scene">
+            <div class="tarot-card" id="tarotCard">
+                <!-- Back of the card -->
+                <div class="card-face card-back">
+                    <div class="card-border">
+                        <div class="card-pattern">
+                            <svg viewBox="0 0 100 100" class="moon-star-svg" fill="currentColor">
+                                <path d="M50 15 A35 35 0 1 0 85 50 A25 25 0 0 1 50 15 Z" />
+                                <polygon points="75,20 77,27 84,27 78,31 80,38 75,34 70,38 72,31 66,27 73,27" />
+                                <polygon points="25,70 27,77 34,77 28,81 30,88 25,84 20,88 22,81 16,77 23,77" />
+                                <polygon points="80,75 81.5,80 87,80 82.5,83 84,88 80,85 76,88 77.5,83 73,80 78.5,80" />
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Front of the card (The Answer) -->
+                <div class="card-face card-front">
+                    <div class="card-border">
+                        <button class="close-btn" id="closeBtn">&times;</button>
+                        <div class="card-content">
+                            <h4 class="card-title">คำทำนายของคุณ</h4>
+                            <p class="question-echo" id="questionDisplay"></p>
+                            
+                            <div class="answer-reveal">
+                                <div class="answer-text" id="answerText"></div>
+                            </div>
+                            
+                            <button class="ask-again-btn" id="askAgainBtn">รับคำทำนายอีกครั้ง</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Custom Magical Cursor -->
+    <div class="magic-cursor" id="magicCursor"></div>
+
+    <script src="script.js"></script>
+</body>
+</html>
