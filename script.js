@@ -112,6 +112,13 @@ function playSparkle() {
 
 document.addEventListener('click', () => {
     startAmbientDrone();
+    
+    // Unlock Web Speech API for iOS Safari
+    if ('speechSynthesis' in window) {
+        const unlockUtterance = new SpeechSynthesisUtterance('');
+        unlockUtterance.volume = 0; // Silent
+        window.speechSynthesis.speak(unlockUtterance);
+    }
 }, { once: true });
 
 // Pre-load voices for Safari/Chrome
