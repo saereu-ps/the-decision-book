@@ -721,12 +721,14 @@ input[type="text"]:focus {
     .theme-toggle-container {
         position: absolute;
         top: 15px;
-        right: 15px;
-        transform: scale(0.7);
-        transform-origin: top right;
+        left: 50%;
+        transform: translateX(-50%);
+        right: auto;
         z-index: 99999;
         flex-direction: row; /* side by side */
-        gap: 15px;
+        gap: 20px;
+        width: auto;
+        justify-content: center;
     }
 
     /* Container */
@@ -734,6 +736,7 @@ input[type="text"]:focus {
         width: 95%;
         padding: 1.5rem 1rem;
         margin: 0 auto;
+        margin-top: 70px; /* Make space for the toggles at the top */
     }
 
     /* Typography */
