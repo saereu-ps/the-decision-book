@@ -42,11 +42,9 @@ function playSwitchSound(isTurningOn) {
 }
 
 let ambientStarted = false;
-let ambientPurrOsc = null;
-let ambientPurrFilter = null;
-let ambientPurrRattleLfo = null;
-let ambientPurrBreathLfo = null;
 let ambientMasterGain = null;
+let magicHumOsc = null;
+let sparkleTimeout = null;
 
 function startAmbientDrone() {
     if(ambientStarted) return;
@@ -54,49 +52,62 @@ function startAmbientDrone() {
     
     ambientStarted = true;
     
-    // Mystical Cat Purr
-    ambientPurrOsc = audioCtx.createOscillator();
-    ambientPurrOsc.type = 'sawtooth';
-    ambientPurrOsc.frequency.value = 25; // Very low fundamental
-    
-    ambientPurrFilter = audioCtx.createBiquadFilter();
-    ambientPurrFilter.type = 'lowpass';
-    ambientPurrFilter.frequency.value = 150; // Muffled rumble
-    
-    // The fast rattle of the purr
-    ambientPurrRattleLfo = audioCtx.createOscillator();
-    ambientPurrRattleLfo.type = 'square';
-    ambientPurrRattleLfo.frequency.value = 22; // Rattle speed
-    
-    // The slow breathing of the purr
-    ambientPurrBreathLfo = audioCtx.createOscillator();
-    ambientPurrBreathLfo.type = 'sine';
-    ambientPurrBreathLfo.frequency.value = 0.3; // Breathe speed
-    
-    const rattleGain = audioCtx.createGain();
-    rattleGain.gain.value = 0.5;
-    ambientPurrRattleLfo.connect(rattleGain);
-    
-    const breathGain = audioCtx.createGain();
-    breathGain.gain.value = 0.4;
-    ambientPurrBreathLfo.connect(breathGain);
-    
-    const masterMod = audioCtx.createGain();
-    masterMod.gain.value = 0; // Base gain
-    rattleGain.connect(masterMod.gain);
-    breathGain.connect(masterMod.gain);
-    
     ambientMasterGain = audioCtx.createGain();
-    ambientMasterGain.gain.value = 0.4; // Overall volume
-    
-    ambientPurrOsc.connect(ambientPurrFilter);
-    ambientPurrFilter.connect(masterMod);
-    masterMod.connect(ambientMasterGain);
+    ambientMasterGain.gain.value = 0.2; // Soft volume
     ambientMasterGain.connect(audioCtx.destination);
     
-    ambientPurrOsc.start();
-    ambientPurrRattleLfo.start();
-    ambientPurrBreathLfo.start();
+    // Mystical Hum
+    magicHumOsc = audioCtx.createOscillator();
+    magicHumOsc.type = 'sine';
+    magicHumOsc.frequency.value = 174; // Magical mystical frequency
+    
+    const humGain = audioCtx.createGain();
+    humGain.gain.value = 0.05; // Very quiet base hum
+    
+    // Slow breathing modulation for the hum
+    const humLfo = audioCtx.createOscillator();
+    humLfo.type = 'sine';
+    humLfo.frequency.value = 0.1; // 10s cycle
+    const humLfoGain = audioCtx.createGain();
+    humLfoGain.gain.value = 0.03;
+    humLfo.connect(humLfoGain);
+    humLfoGain.connect(humGain.gain);
+    
+    magicHumOsc.connect(humGain);
+    humGain.connect(ambientMasterGain);
+    magicHumOsc.start();
+    humLfo.start();
+    
+    // Random Magical Sparkles (A major pentatonic)
+    const scale = [440, 493.88, 554.37, 659.25, 739.99, 880];
+    
+    function playSparkle() {
+        if(!ambientStarted) return;
+        
+        const osc = audioCtx.createOscillator();
+        const gainNode = audioCtx.createGain();
+        osc.type = 'sine';
+        
+        // Pick a random note, 2 octaves up
+        const freq = scale[Math.floor(Math.random() * scale.length)] * 2;
+        osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+        
+        // Soft attack, long bell-like decay
+        gainNode.gain.setValueAtTime(0, audioCtx.currentTime);
+        gainNode.gain.linearRampToValueAtTime(0.06, audioCtx.currentTime + 0.5);
+        gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 3);
+        
+        osc.connect(gainNode);
+        gainNode.connect(ambientMasterGain);
+        
+        osc.start();
+        osc.stop(audioCtx.currentTime + 3);
+        
+        // Schedule next random sparkle (between 0.5 and 2 seconds)
+        sparkleTimeout = setTimeout(playSparkle, Math.random() * 1500 + 500);
+    }
+    
+    playSparkle(); // Start the sparkle loop
 }
 
 document.addEventListener('click', () => {
