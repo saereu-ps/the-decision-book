@@ -21,26 +21,32 @@ function playTick() {
 
 function playSwitchSound(isTurningOn) {
     if(audioCtx.state === 'suspended') audioCtx.resume();
-    const osc = audioCtx.createOscillator();
-    const gainNode = audioCtx.createGain();
-    osc.type = 'sine';
-    const freq = isTurningOn ? 600 : 400;
-    osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
-    osc.frequency.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
     
-    gainNode.gain.setValueAtTime(0.3, audioCtx.currentTime);
-    gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.1);
+    // Play a cat collar bell sound
+    const freqs = isTurningOn ? [1200, 1550, 2100] : [1000, 1300, 1800];
     
-    osc.connect(gainNode);
-    gainNode.connect(audioCtx.destination);
-    osc.start();
-    osc.stop(audioCtx.currentTime + 0.1);
+    freqs.forEach(freq => {
+        const osc = audioCtx.createOscillator();
+        const gainNode = audioCtx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+        
+        gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.3);
+        
+        osc.connect(gainNode);
+        gainNode.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.3);
+    });
 }
 
 let ambientStarted = false;
+let purrOsc = null;
+let purrFilter = null;
+let purrRattleLfo = null;
+let purrBreathLfo = null;
 let ambientMasterGain = null;
-let ambientFilter = null;
-let ambientLfo = null;
 
 function startAmbientDrone() {
     if(ambientStarted) return;
@@ -48,34 +54,49 @@ function startAmbientDrone() {
     
     ambientStarted = true;
     
-    const droneOsc = audioCtx.createOscillator();
-    droneOsc.type = 'sawtooth';
-    droneOsc.frequency.value = 55; // Low A
+    // Mystical Cat Purr
+    purrOsc = audioCtx.createOscillator();
+    purrOsc.type = 'sawtooth';
+    purrOsc.frequency.value = 25; // Very low fundamental
     
-    ambientFilter = audioCtx.createBiquadFilter();
-    ambientFilter.type = 'lowpass';
-    ambientFilter.Q.value = 5;
-    ambientFilter.frequency.value = 400;
+    purrFilter = audioCtx.createBiquadFilter();
+    purrFilter.type = 'lowpass';
+    purrFilter.frequency.value = 150; // Muffled rumble
     
-    ambientLfo = audioCtx.createOscillator();
-    ambientLfo.type = 'sine';
-    ambientLfo.frequency.value = 0.15; // Slow breathing
+    // The fast rattle of the purr
+    purrRattleLfo = audioCtx.createOscillator();
+    purrRattleLfo.type = 'square';
+    purrRattleLfo.frequency.value = 22; // Rattle speed
     
-    const lfoGain = audioCtx.createGain();
-    lfoGain.gain.value = 200;
+    // The slow breathing of the purr
+    purrBreathLfo = audioCtx.createOscillator();
+    purrBreathLfo.type = 'sine';
+    purrBreathLfo.frequency.value = 0.3; // Breathe speed
     
-    ambientLfo.connect(lfoGain);
-    lfoGain.connect(ambientFilter.frequency);
+    const rattleGain = audioCtx.createGain();
+    rattleGain.gain.value = 0.5;
+    purrRattleLfo.connect(rattleGain);
+    
+    const breathGain = audioCtx.createGain();
+    breathGain.gain.value = 0.4;
+    purrBreathLfo.connect(breathGain);
+    
+    const masterMod = audioCtx.createGain();
+    masterMod.gain.value = 0; // Base gain
+    rattleGain.connect(masterMod.gain);
+    breathGain.connect(masterMod.gain);
     
     ambientMasterGain = audioCtx.createGain();
-    ambientMasterGain.gain.value = 0.02; // Very quiet background
+    ambientMasterGain.gain.value = 0.4; // Overall volume
     
-    droneOsc.connect(ambientFilter);
-    ambientFilter.connect(ambientMasterGain);
+    purrOsc.connect(purrFilter);
+    purrFilter.connect(masterMod);
+    masterMod.connect(ambientMasterGain);
     ambientMasterGain.connect(audioCtx.destination);
     
-    droneOsc.start();
-    ambientLfo.start();
+    purrOsc.start();
+    purrRattleLfo.start();
+    purrBreathLfo.start();
 }
 
 document.addEventListener('click', () => {
