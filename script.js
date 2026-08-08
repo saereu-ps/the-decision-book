@@ -19,6 +19,69 @@ function playTick() {
     osc.stop(audioCtx.currentTime + 0.1);
 }
 
+function playSwitchSound(isTurningOn) {
+    if(audioCtx.state === 'suspended') audioCtx.resume();
+    const osc = audioCtx.createOscillator();
+    const gainNode = audioCtx.createGain();
+    osc.type = 'sine';
+    const freq = isTurningOn ? 600 : 400;
+    osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
+    
+    gainNode.gain.setValueAtTime(0.3, audioCtx.currentTime);
+    gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.1);
+    
+    osc.connect(gainNode);
+    gainNode.connect(audioCtx.destination);
+    osc.start();
+    osc.stop(audioCtx.currentTime + 0.1);
+}
+
+let ambientStarted = false;
+let ambientMasterGain = null;
+let ambientFilter = null;
+let ambientLfo = null;
+
+function startAmbientDrone() {
+    if(ambientStarted) return;
+    if(audioCtx.state === 'suspended') audioCtx.resume();
+    
+    ambientStarted = true;
+    
+    const droneOsc = audioCtx.createOscillator();
+    droneOsc.type = 'sawtooth';
+    droneOsc.frequency.value = 55; // Low A
+    
+    ambientFilter = audioCtx.createBiquadFilter();
+    ambientFilter.type = 'lowpass';
+    ambientFilter.Q.value = 5;
+    ambientFilter.frequency.value = 400;
+    
+    ambientLfo = audioCtx.createOscillator();
+    ambientLfo.type = 'sine';
+    ambientLfo.frequency.value = 0.15; // Slow breathing
+    
+    const lfoGain = audioCtx.createGain();
+    lfoGain.gain.value = 200;
+    
+    ambientLfo.connect(lfoGain);
+    lfoGain.connect(ambientFilter.frequency);
+    
+    ambientMasterGain = audioCtx.createGain();
+    ambientMasterGain.gain.value = 0.02; // Very quiet background
+    
+    droneOsc.connect(ambientFilter);
+    ambientFilter.connect(ambientMasterGain);
+    ambientMasterGain.connect(audioCtx.destination);
+    
+    droneOsc.start();
+    ambientLfo.start();
+}
+
+document.addEventListener('click', () => {
+    startAmbientDrone();
+}, { once: true });
+
 function playBoom() {
     if(audioCtx.state === 'suspended') audioCtx.resume();
     const osc = audioCtx.createOscillator();
@@ -558,9 +621,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let isAnimating = false;
 
-    // Theme Toggle Logic
     const catImage = document.getElementById('catImage');
     themeSwitch.addEventListener('change', (e) => {
+        playSwitchSound(e.target.checked);
         if (e.target.checked) {
             document.body.classList.add('theme-day');
             catImage.src = 'fortune_cat_day.png';
@@ -569,6 +632,13 @@ document.addEventListener('DOMContentLoaded', () => {
             catImage.src = 'fortune_cat.png';
         }
     });
+
+    const rudeSwitch = document.getElementById('rudeSwitch');
+    if (rudeSwitch) {
+        rudeSwitch.addEventListener('change', (e) => {
+            playSwitchSound(e.target.checked);
+        });
+    }
 
     // --- Quantum Decypher Effect ---
     const thaiChars = 'กขฃคฅฆงจฉชซฌญฎฏฐฑฒณดตถทธนบปผฝพฟภมยรฤลฦวศษสหฬอฮ';
