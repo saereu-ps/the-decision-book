@@ -38,17 +38,22 @@ function playBoom() {
 
 let chargingOsc = null;
 let chargingGain = null;
+let purrOsc = null;
+let purrGain = null;
+let purrLfo = null;
+let purrLfoGain = null;
 
 function startChargeSound() {
     if(audioCtx.state === 'suspended') audioCtx.resume();
     if(chargingOsc) stopChargeSound();
     
+    // --- Synthesizer rising tone ---
     chargingOsc = audioCtx.createOscillator();
     chargingGain = audioCtx.createGain();
     
     chargingOsc.type = 'triangle';
     chargingOsc.frequency.setValueAtTime(50, audioCtx.currentTime);
-    chargingOsc.frequency.linearRampToValueAtTime(400, audioCtx.currentTime + 2.0); // Rises over 2 seconds
+    chargingOsc.frequency.linearRampToValueAtTime(400, audioCtx.currentTime + 2.0);
     
     chargingGain.gain.setValueAtTime(0, audioCtx.currentTime);
     chargingGain.gain.linearRampToValueAtTime(0.3, audioCtx.currentTime + 1.0);
@@ -56,6 +61,39 @@ function startChargeSound() {
     chargingOsc.connect(chargingGain);
     chargingGain.connect(audioCtx.destination);
     chargingOsc.start();
+
+    // --- Cat Purr Effect ---
+    purrOsc = audioCtx.createOscillator();
+    purrOsc.type = 'sawtooth';
+    purrOsc.frequency.setValueAtTime(25, audioCtx.currentTime); // Low rumble
+
+    purrGain = audioCtx.createGain();
+    purrGain.gain.setValueAtTime(0, audioCtx.currentTime);
+    purrGain.gain.linearRampToValueAtTime(0.8, audioCtx.currentTime + 0.5); // Fade in purr
+
+    // LFO for the purr "motor" effect (Amplitude modulation)
+    purrLfo = audioCtx.createOscillator();
+    purrLfo.type = 'sine';
+    purrLfo.frequency.setValueAtTime(15, audioCtx.currentTime); // Purr speed (15Hz)
+
+    purrLfoGain = audioCtx.createGain();
+    purrLfoGain.gain.setValueAtTime(0.5, audioCtx.currentTime); // Modulation depth
+
+    // Connect LFO to main gain
+    purrLfo.connect(purrLfoGain);
+    purrLfoGain.connect(purrGain.gain);
+
+    // Filter to make it sound muffled/bassy like a purr
+    const purrFilter = audioCtx.createBiquadFilter();
+    purrFilter.type = 'lowpass';
+    purrFilter.frequency.setValueAtTime(200, audioCtx.currentTime);
+
+    purrOsc.connect(purrGain);
+    purrGain.connect(purrFilter);
+    purrFilter.connect(audioCtx.destination);
+
+    purrOsc.start();
+    purrLfo.start();
 }
 
 function stopChargeSound() {
@@ -66,6 +104,18 @@ function stopChargeSound() {
         chargingOsc.stop(audioCtx.currentTime + 0.1);
         chargingOsc = null;
         chargingGain = null;
+    }
+
+    if (purrGain && purrOsc) {
+        purrGain.gain.cancelScheduledValues(audioCtx.currentTime);
+        purrGain.gain.setValueAtTime(purrGain.gain.value, audioCtx.currentTime);
+        purrGain.gain.linearRampToValueAtTime(0.001, audioCtx.currentTime + 0.2); // Fade out purr
+        purrOsc.stop(audioCtx.currentTime + 0.2);
+        purrLfo.stop(audioCtx.currentTime + 0.2);
+        purrOsc = null;
+        purrLfo = null;
+        purrGain = null;
+        purrLfoGain = null;
     }
 }
 
@@ -451,6 +501,9 @@ document.addEventListener('DOMContentLoaded', () => {
         "zZzZzZz... (แกล้งหลับ)",
     ];
 
+    let consecutiveTaps = 0;
+    let tapTimer = null;
+
     function startCharging() {
         if (isAnimating) return;
         
@@ -464,6 +517,31 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    function triggerSecretKnock() {
+        const knockResponses = [
+            "ไม่ได้หลับ! แค่พักสายตา เมี๊ยว!",
+            "จะเคาะทำไม ยังไม่ได้พิมพ์คำถามเลย!",
+            "ของมันต้องใช้สมาธินะ อย่ากวนสิ",
+            "เคาะหาปลาทูเหรอ? ไม่มีหรอกนะ",
+            "อ๊ะ! ตกใจหมดเลย... อย่าเล่นแบบนี้สิ",
+        ];
+        const finalAnswerToReveal = knockResponses[Math.floor(Math.random() * knockResponses.length)];
+        
+        flashBang.classList.remove('hidden');
+        flashBang.classList.add('active');
+        
+        setTimeout(() => {
+            flashBang.classList.remove('active');
+            setTimeout(() => flashBang.classList.add('hidden'), 300);
+
+            questionDisplay.textContent = "... (ก๊อก ก๊อก ก๊อก)";
+            answerText.innerHTML = "";
+            answerOverlay.classList.remove('hidden');
+            
+            startDecypherEffect(answerText, finalAnswerToReveal, 1500);
+        }, 300);
+    }
+
     function stopCharging(triggerOracle) {
         if (!isCharging) return;
         isCharging = false;
@@ -473,10 +551,24 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const chargeDuration = Date.now() - chargeStartTime;
         
-        // If held for less than 500ms, fizzle out (do nothing, let them try again)
         // If held for >500ms and triggerOracle is true, BOOM!
         if (triggerOracle && chargeDuration > 500) {
             executeOracleReveal();
+        } else if (triggerOracle && chargeDuration <= 200) {
+            // Secret Knock Logic: 3 rapid taps with empty input
+            const question = questionInput.value.trim();
+            if (question === "") {
+                consecutiveTaps++;
+                clearTimeout(tapTimer);
+                tapTimer = setTimeout(() => {
+                    consecutiveTaps = 0;
+                }, 1000); // Reset after 1s
+
+                if (consecutiveTaps >= 3) {
+                    consecutiveTaps = 0;
+                    triggerSecretKnock();
+                }
+            }
         }
     }
 
@@ -521,6 +613,22 @@ document.addEventListener('DOMContentLoaded', () => {
             // Cat is ANNOYED (50% chance to override)
             if (Math.random() > 0.5) {
                 finalAnswerToReveal = annoyedResponses[Math.floor(Math.random() * annoyedResponses.length)];
+            }
+        }
+
+        // --- Time-based System (00:00 - 03:59) ---
+        const currentHour = new Date().getHours();
+        if (askCount < 5 && currentHour >= 0 && currentHour < 4) {
+            const lateNightResponses = [
+                "เวลานี้อย่าเพิ่งถามเลย... บางเรื่องปล่อยให้มืดมิดไปเถอะ",
+                "ดึกป่านนี้แล้ว ไปนอนเถอะนะ แมวก็ง่วง",
+                "มีใครบางคน... หรือบางสิ่ง กำลังรอให้คุณหลับตา",
+                "พลังงานบางอย่างบอกให้คุณวางมือถือแล้วไปนอน",
+                "ความมืดมิดมีคำตอบซ่อนอยู่... แต่คุณอาจไม่อยากรู้หรอก"
+            ];
+            // 50% chance to override standard answer if late at night
+            if (Math.random() > 0.5) {
+                finalAnswerToReveal = lateNightResponses[Math.floor(Math.random() * lateNightResponses.length)];
             }
         }
 
