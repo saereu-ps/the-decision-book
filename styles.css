@@ -726,46 +726,4 @@ input[type="text"]:focus {
     25% { transform: translate(-2px, 2px) rotate(-1deg); }
     50% { transform: translate(2px, -2px) rotate(1deg); }
     75% { transform: translate(-2px, -2px) rotate(0deg); }
-    100% { transform: translate(2px, 2px) rotate(-1deg); }
-/* --- God Mode Theme --- */
-body.god-mode {
-    --bg-color: #0d0a00;
-    --text-primary: #ffd700;
-    --text-secondary: #ffec8b;
-    --input-bg: rgba(20, 15, 0, 0.6);
-    --input-border: rgba(255, 215, 0, 0.5);
-    --particle-color: #ffd700;
-    --ambient-light: radial-gradient(circle at 50% 50%, rgba(255,215,0,0.15) 0%, rgba(13,10,0,1) 100%);
-    --card-bg: rgba(10, 8, 0, 0.7);
-    --glow-color: #ffd700;
-    --orb-glow-base: rgba(255, 215, 0, 0.3);
-    --orb-glow-intense: rgba(255, 215, 0, 0.8);
-}
-
-body.god-mode .dynamic-bg {
-    background-image: url('bg_god_mode.png');
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-    filter: brightness(0.9) contrast(1.1);
-}
-
-body.god-mode .bg-pattern {
-    display: none;
-}
-
-body.god-mode .mystic-cat-img {
-    filter: drop-shadow(0 0 30px rgba(255,215,0,0.6));
-    border-color: #ffd700;
-}
-
-body.god-mode .fortune-teller-scene:hover .mystic-cat-img {
-    filter: drop-shadow(0 0 50px rgba(255,215,0,0.9)) brightness(1.2);
-}
-
-body.god-mode .title-en, 
-body.god-mode .answer-text,
-body.god-mode .ask-again-btn {
-    text-shadow: 0 0 15px rgba(255,215,0,0.8);
-    color: #ffd700;
 }
