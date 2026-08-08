@@ -358,6 +358,29 @@ document.addEventListener('DOMContentLoaded', () => {
     document.addEventListener('click', initGyro);
     document.addEventListener('touchend', initGyro);
 
+    // --- Daily Aura System ---
+    const auras = [
+        { color: 'สีม่วงประกายทอง', energy: 'ลึกลับและดึงดูด', advice: 'วันนี้เหมาะกับการตัดสินใจครั้งสำคัญ' },
+        { color: 'สีน้ำเงินเปล่งประกาย', energy: 'สงบและเยือกเย็น', advice: 'ปล่อยวางให้สิ่งดีๆ เข้ามาหาคุณ' },
+        { color: 'สีแดงเพลิงเรืองรัง', energy: 'กล้าหาญและมุ่งมั่น', advice: 'ลุยเต็มที่กับทุกอย่างวันนี้' },
+        { color: 'สีทองอำพัน', energy: 'ร่ำรวยและโชคดี', advice: 'วันนี้โชคดีเข้าข้างคุณ คว้าไว้!' },
+        { color: 'สีเขียวมรกตเรืองเพชร', energy: 'สดชื่นและเต็มเปี่ยมพลัง', advice: 'วันนี้พลังงานเต็มเปี่ยม ทำอะไรก็สำเร็จ' },
+        { color: 'สีชมพูอุ่นๆ', energy: 'อ่อนโยนและเยือกเย็น', advice: 'พักผ่อนหน่อย วันนี้เหมาะกับการพักผ่อน' },
+        { color: 'สีดำอมเงิน', energy: 'ทรงพลังแต่ต้องระวัง', advice: 'พลังสูงแต่อันตราย คิดดีๆ ก่อนทำ' },
+        { color: 'สีขาวเงินเปล่งประกาย', energy: 'บริสุทธิ์และเริ่มต้นใหม่', advice: 'เปิดใจรับสิ่งใหม่ๆ วันนี้' },
+        { color: 'สีดำสนิทเหนือดาว', energy: 'คมคายและตัดสินใจเฉียบคม', advice: 'ตัดสินใจได้เฉียบคมวันนี้' },
+        { color: 'สีชมพูอมเขียวและทอง', energy: 'เสน่ห์ดึงดูดและชาร์มมิ่ง', advice: 'พูดดีงามตาย คนรอบข้างจะรักคุณมากขึ้นวันนี้' },
+        { color: 'สีแดงอัคคีเปล่งไฟ', energy: 'กระตือรือร้นและทะเยอทะยาน', advice: 'มีพลังเหลือเฟือ อย่าหยุดตี!' },
+        { color: 'สีกรมท่าทะเลลึก', energy: 'ลึกลับแต่แรงกล้า', advice: 'คุณมีพลังแฝงมากกว่าที่คิด ใช้มัน!' },
+    ];
+    const today = new Date();
+    const dateSeed = today.getFullYear() * 10000 + (today.getMonth() + 1) * 100 + today.getDate();
+    const todayAura = auras[dateSeed % auras.length];
+    const dailyAuraEl = document.getElementById('dailyAura');
+    const auraTextEl = document.getElementById('auraText');
+    auraTextEl.textContent = `ออร่าวันนี้: ${todayAura.color} | ${todayAura.energy} | ${todayAura.advice}`;
+    dailyAuraEl.style.display = 'flex';
+
     const catButton = document.getElementById('catButton');
     const questionInput = document.getElementById('questionInput');
     const answerOverlay = document.getElementById('answerOverlay');
@@ -429,6 +452,27 @@ document.addEventListener('DOMContentLoaded', () => {
     let isCharging = false;
     let chargeStartTime = 0;
     let recentAnswers = []; // Keep track of recent answers to prevent repeats
+    let askCount = 0; // Cat Mood tracker
+
+    // --- Cat Mood Responses ---
+    const annoyedResponses = [
+        "ถามอะไรนักหนา ไปนอนได้แล้ว!",
+        "พลังเวทย์หมดแล้วย่ะ ชิ่วๆ",
+        "คุณว่าแมวไม่เหนื่อยเหรอ? แมวก็เหนื่อยนะ!",
+        "หยุดถามได้แล้ว แมวจะไปเลียเนื้อแล้ว",
+        "อีกแล้วเหรอ? คุณไม่เบื่อเลยหรือไง?",
+        "แมวเริ่มหงุดหงิดแล้วนะ... หยุดได้แล้ว",
+        "ถามเยอะจริงๆ ตั้งแต่ครั้งแรกก็ตอบไปแล้วนะ!",
+        "คำตอบก็เหมือนเดิมนั่นแหละ จะถามทำไม!",
+    ];
+    const refuseResponses = [
+        "แมวปิดร้านแล้ว! พอกันก่อนนะ",
+        "เมี๊ยวววววว! (แมวเดินออกจากห้องแล้ว)",
+        "ไม่ตอบ! แมวหมดแรงแล้ว ไว้พรุ่งนี้ค่อยมาใหม่นะ",
+        "...เงียบ",
+        "แมวนอนไปแล้ว ช่วงนี้ติดต่อไม่ได้นะเมียว",
+        "zZzZzZz... (แกล้งหลับ)",
+    ];
 
     function startCharging() {
         if (isAnimating) return;
@@ -471,6 +515,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function executeOracleReveal() {
         if (isAnimating) return;
         isAnimating = true;
+        askCount++;
         catScene.classList.add('animating');
         
         playBoom();
@@ -485,27 +530,47 @@ document.addEventListener('DOMContentLoaded', () => {
         } while (recentAnswers.includes(randomAnswerObj));
         
         recentAnswers.push(randomAnswerObj);
-        if (recentAnswers.length > 15) { // Prevent the last 15 answers from repeating immediately
+        if (recentAnswers.length > 15) {
             recentAnswers.shift();
         }
         
-        // --- Secret Easter Eggs ---
+        // --- Cat Mood System ---
         let finalAnswerToReveal = randomAnswerObj;
-        const qLower = question.toLowerCase();
         
-        if (qLower.includes("หิว") || qLower.includes("กินอะไรดี") || qLower.includes("กินไรดี")) {
-            finalAnswerToReveal = "แมวแนะนำให้ไปหาปลาทูทอดกินนะ เมี๊ยว~";
-        } else if (qLower.includes("ถูกหวย") || qLower.includes("รวยไหม") || qLower.includes("รางวัลที่ 1")) {
-            finalAnswerToReveal = "เตรียมตัวเป็นเศรษฐีได้เลย! (แต่ต้องซื้อให้ถูกเลขนะ)";
-        } else if (qLower.includes("แฟน") || qLower.includes("ความรัก") || qLower.includes("เนื้อคู่") || qLower.includes("คนคุย")) {
-            finalAnswerToReveal = "ความรักอยู่รอบตัวคุณ รออีกนิดเดี๋ยวก็มา 💖";
-        } else if (qLower.includes("the matrix")) {
-            finalAnswerToReveal = "Wake up... The Matrix has you.";
-        } else if (qLower.includes("เหนื่อย") || qLower.includes("ท้อ")) {
-            finalAnswerToReveal = "พักผ่อนเถอะนะ พรุ่งนี้ค่อยเริ่มใหม่ เป็นกำลังใจให้";
-        } else if (qLower.includes("สอบ") || qLower.includes("เกรด")) {
-            finalAnswerToReveal = "อ่านหนังสือเพิ่มอีกนิด ผ่านฉลุยแน่นอน!";
+        if (askCount >= 10) {
+            // Cat REFUSES to answer
+            finalAnswerToReveal = refuseResponses[Math.floor(Math.random() * refuseResponses.length)];
+        } else if (askCount >= 5) {
+            // Cat is ANNOYED (50% chance to override)
+            if (Math.random() > 0.5) {
+                finalAnswerToReveal = annoyedResponses[Math.floor(Math.random() * annoyedResponses.length)];
+            }
         }
+
+        // --- Secret Easter Eggs (only if cat is not in mood override) ---
+        if (askCount < 10) {
+            const qLower = question.toLowerCase();
+            if (qLower.includes("หิว") || qLower.includes("กินอะไรดี") || qLower.includes("กินไรดี")) {
+                finalAnswerToReveal = "แมวแนะนำให้ไปหาปลาทูทอดกินนะ เมี๊ยว~";
+            } else if (qLower.includes("ถูกหวย") || qLower.includes("รวยไหม") || qLower.includes("รางวัลที่ 1")) {
+                finalAnswerToReveal = "เตรียมตัวเป็นเศรษฐีได้เลย! (แต่ต้องซื้อให้ถูกเลขนะ)";
+            } else if (qLower.includes("แฟน") || qLower.includes("ความรัก") || qLower.includes("เนื้อคู่") || qLower.includes("คนคุย")) {
+                finalAnswerToReveal = "ความรักอยู่รอบตัวคุณ รออีกนิดเดี๋ยวก็มา";
+            } else if (qLower.includes("the matrix")) {
+                finalAnswerToReveal = "Wake up... The Matrix has you.";
+            } else if (qLower.includes("เหนื่อย") || qLower.includes("ท้อ")) {
+                finalAnswerToReveal = "พักผ่อนเถอะนะ พรุ่งนี้ค่อยเริ่มใหม่ เป็นกำลังใจให้";
+            } else if (qLower.includes("สอบ") || qLower.includes("เกรด")) {
+                finalAnswerToReveal = "อ่านหนังสือเพิ่มอีกนิด ผ่านฉลุยแน่นอน!";
+            }
+        }
+
+        // --- Lucky Numbers ---
+        const luckyNumbersEl = document.getElementById('luckyNumbers');
+        const num1 = Math.floor(Math.random() * 100);
+        const num2 = Math.floor(Math.random() * 100);
+        const num3 = Math.floor(Math.random() * 1000);
+        const luckyStr = `เลขมงคล: ${String(num1).padStart(2, '0')} • ${String(num2).padStart(2, '0')} • ${String(num3).padStart(3, '0')}`;
 
         // Dramatic Reveal Sequence
         flashBang.classList.remove('hidden');
@@ -524,10 +589,16 @@ document.addEventListener('DOMContentLoaded', () => {
             // Show answer overlay
             questionDisplay.textContent = finalQuestion;
             answerText.innerHTML = "";
+            luckyNumbersEl.textContent = "";
             answerOverlay.classList.remove('hidden');
             
             // Start the Decypher scramble effect (lasts 2 seconds)
             startDecypherEffect(answerText, finalAnswerToReveal, 2000);
+
+            // Show Lucky Numbers after the main answer is revealed
+            setTimeout(() => {
+                luckyNumbersEl.textContent = luckyStr;
+            }, 2200);
             
             // Stop cat animation
             catScene.classList.remove('animating');

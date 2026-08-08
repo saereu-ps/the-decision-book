@@ -692,3 +692,37 @@ input[type="text"]:focus {
     100% { transform: translate(2px, 2px) rotate(-1deg); }
 }
 
+
+/* --- New Features Styling --- */
+.daily-aura-toast {
+    margin: 0 auto 1.5rem auto;
+    padding: 10px 20px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 215, 0, 0.3);
+    border-radius: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    font-size: 0.9rem;
+    color: var(--gold);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+    max-width: fit-content;
+    animation: fadeInSlideUp 1s ease forwards;
+}
+
+@keyframes fadeInSlideUp {
+    0% { opacity: 0; transform: translateY(20px); }
+    100% { opacity: 1; transform: translateY(0); }
+}
+
+.lucky-numbers {
+    margin-top: 1.5rem;
+    font-size: 1.2rem;
+    color: var(--gold);
+    text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+    font-weight: 600;
+    letter-spacing: 2px;
+    border-top: 1px dashed rgba(255, 215, 0, 0.3);
+    padding-top: 1rem;
+}

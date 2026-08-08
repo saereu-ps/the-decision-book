@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>The Decision Book | แมวหมอดูเวทมนตร์</title>
+    <title>DESTINY'S CAT | The Decision Book</title>
     <link rel="stylesheet" href="styles.css">
     <link href="https://fonts.googleapis.com/css2?family=Chonburi&family=Lora:ital,wght@0,400;0,700;1,400&family=Prompt:wght@300;400;600&display=swap" rel="stylesheet">
 </head>
@@ -42,14 +42,18 @@
     
     <main class="container">
         <header>
-            <h1 class="title-en">MYSTIC PAWS</h1>
-            <h2 class="title-th">The Decision Book</h2>
-            <p class="subtitle">จงตั้งสมาธิ และรับคำทำนายจากแม่หมอ</p>
+            <h1 class="title-en">DESTINY'S CAT</h1>
+            <p class="subtitle">No hesitations. No regrets. จงตั้งสมาธิ... ที่นี่มีแต่คำตอบที่เด็ดขาด</p>
         </header>
+
+        <div class="daily-aura-toast" id="dailyAura" style="display: none;">
+            <span class="aura-icon">✨</span>
+            <span class="aura-text" id="auraText"></span>
+        </div>
 
         <section class="interaction-area">
             <div class="input-group">
-                <input type="text" id="questionInput" class="question-input" placeholder="พิมพ์คำถามของคุณ แล้วกดค้างที่รูปแมว..." autocomplete="off">
+                <input type="text" id="questionInput" class="question-input" placeholder="What's on your mind? พิมพ์สิ่งที่สงสัย... แล้วกดค้างเพื่อรับคำตัดสิน" autocomplete="off">
             </div>
 
             <!-- The Full Card Image with Crystal Ball Glow Overlay and Reflection -->
@@ -99,7 +103,8 @@
                             <p class="question-echo" id="questionDisplay"></p>
                             
                             <div class="answer-reveal">
-                                <div class="answer-text" id="answerText"></div>
+                                <p class="answer-text" id="answerText"></p>
+                                <div class="lucky-numbers" id="luckyNumbers"></div>
                             </div>
                             
                             <button class="ask-again-btn" id="askAgainBtn">รับคำทำนายอีกครั้ง</button>
