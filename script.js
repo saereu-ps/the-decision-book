@@ -42,10 +42,10 @@ function playSwitchSound(isTurningOn) {
 }
 
 let ambientStarted = false;
-let purrOsc = null;
-let purrFilter = null;
-let purrRattleLfo = null;
-let purrBreathLfo = null;
+let ambientPurrOsc = null;
+let ambientPurrFilter = null;
+let ambientPurrRattleLfo = null;
+let ambientPurrBreathLfo = null;
 let ambientMasterGain = null;
 
 function startAmbientDrone() {
@@ -55,31 +55,31 @@ function startAmbientDrone() {
     ambientStarted = true;
     
     // Mystical Cat Purr
-    purrOsc = audioCtx.createOscillator();
-    purrOsc.type = 'sawtooth';
-    purrOsc.frequency.value = 25; // Very low fundamental
+    ambientPurrOsc = audioCtx.createOscillator();
+    ambientPurrOsc.type = 'sawtooth';
+    ambientPurrOsc.frequency.value = 25; // Very low fundamental
     
-    purrFilter = audioCtx.createBiquadFilter();
-    purrFilter.type = 'lowpass';
-    purrFilter.frequency.value = 150; // Muffled rumble
+    ambientPurrFilter = audioCtx.createBiquadFilter();
+    ambientPurrFilter.type = 'lowpass';
+    ambientPurrFilter.frequency.value = 150; // Muffled rumble
     
     // The fast rattle of the purr
-    purrRattleLfo = audioCtx.createOscillator();
-    purrRattleLfo.type = 'square';
-    purrRattleLfo.frequency.value = 22; // Rattle speed
+    ambientPurrRattleLfo = audioCtx.createOscillator();
+    ambientPurrRattleLfo.type = 'square';
+    ambientPurrRattleLfo.frequency.value = 22; // Rattle speed
     
     // The slow breathing of the purr
-    purrBreathLfo = audioCtx.createOscillator();
-    purrBreathLfo.type = 'sine';
-    purrBreathLfo.frequency.value = 0.3; // Breathe speed
+    ambientPurrBreathLfo = audioCtx.createOscillator();
+    ambientPurrBreathLfo.type = 'sine';
+    ambientPurrBreathLfo.frequency.value = 0.3; // Breathe speed
     
     const rattleGain = audioCtx.createGain();
     rattleGain.gain.value = 0.5;
-    purrRattleLfo.connect(rattleGain);
+    ambientPurrRattleLfo.connect(rattleGain);
     
     const breathGain = audioCtx.createGain();
     breathGain.gain.value = 0.4;
-    purrBreathLfo.connect(breathGain);
+    ambientPurrBreathLfo.connect(breathGain);
     
     const masterMod = audioCtx.createGain();
     masterMod.gain.value = 0; // Base gain
@@ -89,14 +89,14 @@ function startAmbientDrone() {
     ambientMasterGain = audioCtx.createGain();
     ambientMasterGain.gain.value = 0.4; // Overall volume
     
-    purrOsc.connect(purrFilter);
-    purrFilter.connect(masterMod);
+    ambientPurrOsc.connect(ambientPurrFilter);
+    ambientPurrFilter.connect(masterMod);
     masterMod.connect(ambientMasterGain);
     ambientMasterGain.connect(audioCtx.destination);
     
-    purrOsc.start();
-    purrRattleLfo.start();
-    purrBreathLfo.start();
+    ambientPurrOsc.start();
+    ambientPurrRattleLfo.start();
+    ambientPurrBreathLfo.start();
 }
 
 document.addEventListener('click', () => {
