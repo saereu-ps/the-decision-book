@@ -611,11 +611,50 @@ input[type="text"]:focus {
 }
 
 @media (max-width: 480px) {
-    .title-en { font-size: 2.2rem; }
-    .scene { width: 280px; height: 420px; }
-    .answer-text { font-size: 1.5rem; }
-    body { cursor: auto; } /* Re-enable default cursor on mobile */
-    .magic-cursor, .stardust { display: none; } /* Hide magical cursor on mobile */
+    /* Theme Toggle */
+    .theme-toggle-container {
+        top: 15px;
+        right: 15px;
+        transform: scale(0.85);
+        transform-origin: top right;
+    }
+
+    /* Container */
+    .container {
+        width: 95%;
+        padding: 1.5rem 1rem;
+    }
+
+    /* Typography */
+    .title-en { font-size: 1.8rem; letter-spacing: 2px; }
+    .title-th { font-size: 1rem; }
+    .subtitle { font-size: 0.8rem; }
+    
+    /* Input */
+    .question-input {
+        padding: 12px 15px;
+        font-size: 0.95rem;
+    }
+
+    /* Cat Image Container */
+    .fortune-teller-scene {
+        width: 200px;
+        height: 280px;
+        margin: 15px 0;
+    }
+
+    /* Answer Overlay Card */
+    .scene { 
+        width: 260px; 
+        height: 380px; 
+    }
+    .answer-text { font-size: 1.3rem; }
+    .card-front { padding: 20px; }
+    .card-title { font-size: 1.2rem; }
+    
+    /* Disable Magic Cursor on Mobile */
+    body { cursor: auto; }
+    .magic-cursor, .stardust { display: none; }
 }
 
 /* --- Hold to Charge State --- */
