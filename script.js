@@ -114,6 +114,13 @@ document.addEventListener('click', () => {
     startAmbientDrone();
 }, { once: true });
 
+// Pre-load voices for Safari/Chrome
+if ('speechSynthesis' in window) {
+    window.speechSynthesis.onvoiceschanged = () => {
+        window.speechSynthesis.getVoices();
+    };
+}
+
 function speakAnswer(text) {
     if (!('speechSynthesis' in window)) return;
     
@@ -125,7 +132,24 @@ function speakAnswer(text) {
     
     const utterance = new SpeechSynthesisUtterance(cleanText);
     utterance.lang = 'th-TH'; // Thai language
-    utterance.pitch = 0.8; // Slightly deeper, mysterious voice
+    
+    // Try to find the most natural sounding Thai voice available on the device
+    const voices = window.speechSynthesis.getVoices();
+    const thaiVoices = voices.filter(v => v.lang.includes('th') || v.lang === 'th-TH');
+    
+    if (thaiVoices.length > 0) {
+        // Prefer voices that have "Premium", "Siri", or "Natural" in their name
+        const premiumVoice = thaiVoices.find(v => 
+            v.name.includes('Premium') || 
+            v.name.includes('Siri') || 
+            v.name.includes('Natural')
+        );
+        utterance.voice = premiumVoice || thaiVoices[0];
+    }
+    
+    // Use normal pitch for normal mode, slightly lower for rude mode
+    const isRudeMode = document.getElementById('rudeSwitch') ? document.getElementById('rudeSwitch').checked : false;
+    utterance.pitch = isRudeMode ? 0.85 : 1.0; 
     utterance.rate = 1.0; 
     
     window.speechSynthesis.speak(utterance);
