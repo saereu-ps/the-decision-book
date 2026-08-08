@@ -344,6 +344,20 @@ const answers = [
 ];
 
 document.addEventListener('DOMContentLoaded', () => {
+    // --- iOS 13+ Gyroscope Permission ---
+    // Apple requires permission to be granted via a direct 'click' or 'touchend' event.
+    let hasRequestedGyro = false;
+    const initGyro = () => {
+        if (!hasRequestedGyro && typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
+            DeviceOrientationEvent.requestPermission().catch(console.error);
+            hasRequestedGyro = true;
+        }
+        document.removeEventListener('click', initGyro);
+        document.removeEventListener('touchend', initGyro);
+    };
+    document.addEventListener('click', initGyro);
+    document.addEventListener('touchend', initGyro);
+
     const catButton = document.getElementById('catButton');
     const questionInput = document.getElementById('questionInput');
     const answerOverlay = document.getElementById('answerOverlay');
@@ -414,18 +428,10 @@ document.addEventListener('DOMContentLoaded', () => {
     let chargeTimer = null;
     let isCharging = false;
     let chargeStartTime = 0;
-
-    let hasRequestedGyro = false;
     let recentAnswers = []; // Keep track of recent answers to prevent repeats
 
     function startCharging() {
         if (isAnimating) return;
-        
-        // Request Gyroscope permission for iOS 13+ on first interaction
-        if (!hasRequestedGyro && typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
-            DeviceOrientationEvent.requestPermission().catch(console.error);
-            hasRequestedGyro = true;
-        }
         
         isCharging = true;
         chargeStartTime = Date.now();
