@@ -101,7 +101,7 @@ body {
     background-repeat: repeat;
     background-size: 500px;
     z-index: -2;
-    transition: background-image 1s ease, background-color 1s ease, transform 0.1s ease-out;
+    transition: background-image 1s ease, background-color 1s ease, transform 0.1s ease-out, background-position 0.1s ease-out;
 }
 
 .dynamic-bg::after {
@@ -808,7 +808,7 @@ input[type="text"]:focus {
     opacity: 1;
     background: radial-gradient(circle, var(--orb-glow-intense) 0%, transparent 60%);
     animation: pulseGlow 1s infinite, spinGlow 2s linear infinite;
-    transform: scale(1.5);
+    transform: translateX(-50%) scale(1.5) !important;
 }
 
 .card-front.charging .mystic-cat-img {
