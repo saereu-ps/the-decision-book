@@ -705,11 +705,9 @@ document.addEventListener('DOMContentLoaded', () => {
     document.addEventListener('touchend', initGyro);
 
     const catButton = document.getElementById('catButton');
+    const tarotCard = document.getElementById('tarotCard');
     const questionInput = document.getElementById('questionInput');
-    const answerOverlay = document.getElementById('answerOverlay');
-    const closeBtn = document.getElementById('closeBtn');
     const askAgainBtn = document.getElementById('askAgainBtn');
-    
     const flashBang = document.getElementById('flashBang');
     const magicExplosion = document.getElementById('magicExplosion');
     const crystalGlow = document.getElementById('crystalGlow');
@@ -743,10 +741,32 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    function playGlitchSound() {
+        if(audioCtx.state === 'suspended') audioCtx.resume();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(60, audioCtx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(20, audioCtx.currentTime + 0.5);
+        gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.5);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.5);
+    }
+
     const rudeSwitch = document.getElementById('rudeSwitch');
     if (rudeSwitch) {
         rudeSwitch.addEventListener('change', (e) => {
             playSwitchSound(e.target.checked);
+            if (e.target.checked) {
+                document.body.classList.add('glitch-effect');
+                playGlitchSound();
+                setTimeout(() => {
+                    document.body.classList.remove('glitch-effect');
+                }, 800);
+            }
         });
     }
 
@@ -1003,13 +1023,15 @@ document.addEventListener('DOMContentLoaded', () => {
             magicExplosion.classList.remove('burst');
             magicExplosion.classList.add('hidden');
 
-            // Show answer overlay
+            // Flip the card
             questionDisplay.textContent = finalQuestion;
             answerText.innerHTML = "";
-            answerOverlay.classList.remove('hidden');
+            tarotCard.classList.add('flipped');
             
-            // Start the Decypher scramble effect (lasts 2 seconds)
-            startDecypherEffect(answerText, finalAnswerToReveal, 2000);
+            // Start the Decypher scramble effect
+            setTimeout(() => {
+                startDecypherEffect(answerText, finalAnswerToReveal, 2000);
+            }, 300);
             
             // Speak the answer aloud
             speakAnswer(finalAnswerToReveal);
@@ -1020,13 +1042,9 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 600); // Wait for explosion peak
     }
 
-    // Event Listeners for overlay
-    closeBtn.addEventListener('click', () => {
-        answerOverlay.classList.add('hidden');
-    });
-
+    // Event Listeners for back of card
     askAgainBtn.addEventListener('click', () => {
-        answerOverlay.classList.add('hidden');
+        tarotCard.classList.remove('flipped');
         questionInput.value = '';
         questionInput.focus();
     });
@@ -1039,3 +1057,209 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 });
+
+// --- Parallax Background Effect ---
+const dynamicBg = document.getElementById('dynamicBg');
+let parallaxX = 0;
+let parallaxY = 0;
+
+// Mouse movement parallax (Desktop)
+document.addEventListener('mousemove', (e) => {
+    if (!dynamicBg) return;
+    parallaxX = (e.clientX / window.innerWidth - 0.5) * 30; // Max 15px shift
+    parallaxY = (e.clientY / window.innerHeight - 0.5) * 30;
+    dynamicBg.style.transform = `translate(${parallaxX}px, ${parallaxY}px)`;
+});
+
+// Device orientation parallax (Mobile)
+window.addEventListener('deviceorientation', (e) => {
+    if (!dynamicBg || !e.gamma || !e.beta) return;
+    const maxTilt = 30; 
+    let x = Math.max(-maxTilt, Math.min(maxTilt, e.gamma));
+    let y = Math.max(-maxTilt, Math.min(maxTilt, e.beta - 45)); // Offset beta for natural holding angle
+    
+    parallaxX = (x / maxTilt) * 20;
+    parallaxY = (y / maxTilt) * 20;
+    dynamicBg.style.transform = `translate(${parallaxX}px, ${parallaxY}px)`;
+});
+
+// --- Magic Particle Engine (Phase 3) ---
+const particleCanvas = document.getElementById('magicParticles');
+const particleCtx = particleCanvas ? particleCanvas.getContext('2d') : null;
+let particlesArray = [];
+
+function resizeCanvas() {
+    if (!particleCanvas) return;
+    particleCanvas.width = particleCanvas.offsetWidth;
+    particleCanvas.height = particleCanvas.offsetHeight;
+}
+window.addEventListener('resize', resizeCanvas);
+setTimeout(resizeCanvas, 100);
+
+class Particle {
+    constructor() {
+        this.x = particleCanvas.width / 2 + (Math.random() - 0.5) * 50;
+        this.y = particleCanvas.height - 70 + (Math.random() - 0.5) * 20;
+        this.size = Math.random() * 2.5 + 0.5;
+        this.speedX = (Math.random() - 0.5) * 1.5;
+        this.speedY = Math.random() * -2 - 0.5;
+        this.life = 1.0;
+        this.decay = Math.random() * 0.02 + 0.01;
+    }
+    update() {
+        this.x += this.speedX;
+        this.y += this.speedY;
+        this.life -= this.decay;
+        this.speedX += (Math.random() - 0.5) * 0.2;
+    }
+    draw() {
+        particleCtx.beginPath();
+        particleCtx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+        particleCtx.fillStyle = `rgba(247, 194, 84, ${this.life})`;
+        particleCtx.shadowBlur = 10;
+        particleCtx.shadowColor = 'rgba(247, 194, 84, 1)';
+        particleCtx.fill();
+    }
+}
+
+function handleParticles() {
+    if (!particleCanvas) return;
+    if (particlesArray.length < 50 && Math.random() < 0.3) {
+        particlesArray.push(new Particle());
+    }
+    
+    for (let i = 0; i < particlesArray.length; i++) {
+        particlesArray[i].update();
+        particlesArray[i].draw();
+        
+        if (particlesArray[i].life <= 0) {
+            particlesArray.splice(i, 1);
+            i--;
+        }
+    }
+}
+
+function animateParticles() {
+    if (!particleCanvas || !particleCtx) return;
+    particleCtx.clearRect(0, 0, particleCanvas.width, particleCanvas.height);
+    handleParticles();
+    requestAnimationFrame(animateParticles);
+}
+if (particleCanvas) {
+    animateParticles();
+}
+
+// --- Voice Input & Audio React (Phase 5) ---
+const micBtn = document.getElementById('micBtn');
+const SpeechRecognitionAPI = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+let isVoiceListening = false;
+
+if (SpeechRecognitionAPI && micBtn) {
+    const recognition = new SpeechRecognitionAPI();
+    recognition.lang = 'th-TH'; // Default to Thai
+    recognition.interimResults = false;
+    recognition.maxAlternatives = 1;
+    
+    micBtn.addEventListener('click', () => {
+        if (isVoiceListening) {
+            recognition.stop();
+        } else {
+            recognition.start();
+        }
+    });
+    
+    recognition.addEventListener('start', () => {
+        isVoiceListening = true;
+        micBtn.classList.add('listening');
+        const questionInput = document.getElementById('questionInput');
+        if(questionInput) questionInput.placeholder = "กำลังฟัง...";
+        initAudioReact(); // Start glowing to voice
+    });
+    
+    recognition.addEventListener('end', () => {
+        isVoiceListening = false;
+        micBtn.classList.remove('listening');
+        const questionInput = document.getElementById('questionInput');
+        if(questionInput) questionInput.placeholder = "พิมพ์คำถามที่สงสัย...";
+        stopAudioReact();
+    });
+    
+    recognition.addEventListener('result', (e) => {
+        const transcript = e.results[0][0].transcript;
+        const questionInput = document.getElementById('questionInput');
+        if(questionInput) questionInput.value = transcript;
+    });
+    
+    recognition.addEventListener('error', (e) => {
+        console.error("Speech recognition error:", e.error);
+        isVoiceListening = false;
+        micBtn.classList.remove('listening');
+        const questionInput = document.getElementById('questionInput');
+        if(questionInput) questionInput.placeholder = "พิมพ์คำถามที่สงสัย...";
+        stopAudioReact();
+    });
+} else if (micBtn) {
+    micBtn.style.display = 'none'; // Hide if not supported
+}
+
+// Audio React (Crystal Ball Glow)
+let audioReactStream = null;
+let audioReactCtx = null;
+let analyser = null;
+let audioReactSource = null;
+let audioReactTimer = null;
+
+async function initAudioReact() {
+    try {
+        audioReactStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+        audioReactCtx = new (window.AudioContext || window.webkitAudioContext)();
+        analyser = audioReactCtx.createAnalyser();
+        analyser.fftSize = 256;
+        audioReactSource = audioReactCtx.createMediaStreamSource(audioReactStream);
+        audioReactSource.connect(analyser);
+        
+        const dataArray = new Uint8Array(analyser.frequencyBinCount);
+        
+        function updateGlow() {
+            if (!isVoiceListening) return;
+            analyser.getByteFrequencyData(dataArray);
+            let sum = 0;
+            for(let i=0; i<dataArray.length; i++) sum += dataArray[i];
+            const average = sum / dataArray.length;
+            
+            const scale = 1 + (average / 255) * 1.5;
+            const crystalGlow = document.getElementById('crystalGlow');
+            if (crystalGlow) {
+                crystalGlow.style.transform = `translateX(-50%) scale(${scale})`;
+                crystalGlow.style.opacity = Math.min(1, 0.5 + (average / 255));
+            }
+            
+            audioReactTimer = requestAnimationFrame(updateGlow);
+        }
+        updateGlow();
+    } catch (e) {
+        console.error("Mic permission denied or error:", e);
+    }
+}
+
+function stopAudioReact() {
+    if (audioReactTimer) cancelAnimationFrame(audioReactTimer);
+    if (audioReactSource) {
+        audioReactSource.disconnect();
+        audioReactSource = null;
+    }
+    if (audioReactCtx) {
+        audioReactCtx.close();
+        audioReactCtx = null;
+    }
+    if (audioReactStream) {
+        audioReactStream.getTracks().forEach(track => track.stop());
+        audioReactStream = null;
+    }
+    const crystalGlow = document.getElementById('crystalGlow');
+    if (crystalGlow) {
+        crystalGlow.style.transform = `translateX(-50%) scale(1)`;
+        crystalGlow.style.opacity = 0.5;
+    }
+}

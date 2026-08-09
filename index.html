@@ -8,6 +8,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Chonburi&family=Lora:ital,wght@0,400;0,700;1,400&family=Prompt:wght@300;400;600&display=swap" rel="stylesheet">
 </head>
 <body>
+
     <!-- Dynamic CSS Background -->
     <div class="dynamic-bg" id="dynamicBg">
         <div class="particles" id="particles"></div>
@@ -72,58 +73,57 @@
         <section class="interaction-area">
             <div class="input-group">
                 <input type="text" id="questionInput" class="question-input" placeholder="พิมพ์คำถามที่สงสัย..." autocomplete="off">
+                <button id="micBtn" class="mic-btn" aria-label="พูดคำถาม">
+                    <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
+                        <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+                        <line x1="12" y1="19" x2="12" y2="23"></line>
+                        <line x1="8" y1="23" x2="16" y2="23"></line>
+                    </svg>
+                </button>
             </div>
 
-            <!-- The Full Card Image with Crystal Ball Glow Overlay and Reflection -->
-            <div class="fortune-teller-scene" id="catButton">
-                <img src="fortune_cat.png" alt="Fortune Teller Cat" class="mystic-cat-img" id="catImage">
-                <!-- This glow is positioned exactly over the crystal ball in the image -->
-                <div class="magic-glow-overlay" id="crystalGlow"></div>
-                <!-- Glossy Foil Reflection for 3D Tilt -->
-                <div class="glossy-reflection" id="cardReflection"></div>
-                <!-- Magic explosion burst centered on cat -->
-                <div class="magic-explosion hidden" id="magicExplosion"></div>
+            <!-- The Full Card Image (3D Flip) -->
+            <div class="scene" id="mainScene">
+                <div class="tarot-card" id="tarotCard">
+                    <!-- Front of the card (The Cat) -->
+                    <div class="card-face card-front" id="catButton">
+                        <img src="fortune_cat.png" alt="Fortune Teller Cat" class="mystic-cat-img" id="catImage">
+                        <!-- This glow is positioned exactly over the crystal ball in the image -->
+                        <div class="magic-glow-overlay" id="crystalGlow"></div>
+                        <!-- Phase 3: Magic Particle Canvas -->
+                        <canvas id="magicParticles"></canvas>
+                        <!-- Glossy Foil Reflection for 3D Tilt -->
+                        <div class="glossy-reflection" id="cardReflection"></div>
+                        <!-- Magic explosion burst centered on cat -->
+                        <div class="magic-explosion hidden" id="magicExplosion"></div>
+                    </div>
+                    
+                    <!-- Back of the card (The Answer) -->
+                    <div class="card-face card-back">
+                        <div class="card-border">
+                            <div class="card-pattern"></div>
+                            <div class="card-content">
+                                <h4 class="card-title">คำทำนายของคุณ</h4>
+                                <p class="question-echo" id="questionDisplay"></p>
+                                
+                                <div class="answer-reveal">
+                                    <p class="answer-text" id="answerText"></p>
+                                </div>
+                                
+                                <button class="ask-again-btn" id="askAgainBtn">ถามอีกครั้ง</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
             
-            <p class="instruction">แตะที่ลูกแก้ววิเศษเพื่อเริ่มการทำนาย</p>
+            <p class="instruction" id="instructionText">แตะที่ลูกแก้ววิเศษเพื่อเริ่มการทำนาย</p>
         </section>
     </main>
 
     <!-- Dramatic Flash Overlay -->
     <div class="flash-bang hidden" id="flashBang"></div>
-
-    <!-- Overlay for the Tarot Card reveal -->
-    <div class="overlay hidden" id="answerOverlay">
-        <div class="overlay-backdrop"></div>
-        
-        <div class="scene">
-            <div class="tarot-card" id="tarotCard">
-                <!-- Back of the card -->
-                <div class="card-face card-back">
-                    <div class="card-border">
-                        <div class="card-pattern"></div>
-                    </div>
-                </div>
-                
-                <!-- Front of the card (The Answer) -->
-                <div class="card-face card-front">
-                    <div class="card-border">
-                        <button class="close-btn" id="closeBtn">&times;</button>
-                        <div class="card-content">
-                            <h4 class="card-title">คำทำนายของคุณ</h4>
-                            <p class="question-echo" id="questionDisplay"></p>
-                            
-                            <div class="answer-reveal">
-                                <p class="answer-text" id="answerText"></p>
-                            </div>
-                            
-                            <button class="ask-again-btn" id="askAgainBtn">รับคำทำนายอีกครั้ง</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
 
     <!-- Custom Magical Cursor -->
     <div class="magic-cursor" id="magicCursor"></div>
