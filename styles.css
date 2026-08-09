@@ -221,6 +221,25 @@ body {
     transform: scale(0.95);
 }
 
+.mystic-svg {
+    display: inline-block;
+    vertical-align: middle;
+    margin-right: 4px;
+    filter: drop-shadow(0 0 5px currentColor);
+}
+
+.magic-orb-projectile {
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    background: radial-gradient(circle, #fff 0%, #f9d423 40%, transparent 80%);
+    border-radius: 50%;
+    z-index: 100;
+    pointer-events: none;
+    box-shadow: 0 0 20px #f9d423, 0 0 40px #ff4e50;
+    transition: all 0.5s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
 /* Interactive Reactions */
 body.reaction-positive .dynamic-bg {
     background-color: #3e1b38;

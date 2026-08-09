@@ -756,14 +756,20 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!document.querySelector('.cat-status-container')) {
         const uiHtml = `
         <div class="cat-status-container">
-            <div class="mood-bar-wrapper" title="อารมณ์ท่านเหมียว">
-                <div class="mood-icon" id="moodIcon">😼</div>
+            <div class="mood-bar-wrapper" title="พลังเวทมนตร์ (Aura)">
+                <div class="mood-icon" id="moodIcon">
+                    <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" class="mystic-svg">
+                        <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"></path>
+                    </svg>
+                </div>
                 <div class="mood-bar-bg">
                     <div class="mood-bar-fill" id="moodBarFill"></div>
                 </div>
             </div>
-            <button id="feedBtn" class="feed-btn" title="ให้ปลาทูเพิ่มอารมณ์ดี">
-                🐟 ให้อาหาร
+            <button id="feedBtn" class="feed-btn" title="ฟื้นฟูพลังเวท">
+                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" class="mystic-svg">
+                    <path d="M12 2L2 22h20L12 2z"></path>
+                </svg> ฟื้นฟูพลังเวท
             </button>
         </div>`;
         document.body.insertAdjacentHTML('afterbegin', uiHtml);
@@ -779,46 +785,45 @@ document.addEventListener('DOMContentLoaded', () => {
         
         if (catMood > 70) {
             moodBarFill.style.background = 'linear-gradient(90deg, #f9d423, #ff4e50)';
-            moodIcon.textContent = '😻';
+            moodBarFill.style.boxShadow = '0 0 10px rgba(249, 212, 35, 0.8)';
+            if (moodIcon) moodIcon.style.color = '#f9d423';
         } else if (catMood > 30) {
             moodBarFill.style.background = 'linear-gradient(90deg, #f1c40f, #e67e22)';
-            moodIcon.textContent = '😼';
+            moodBarFill.style.boxShadow = '0 0 10px rgba(241, 196, 15, 0.8)';
+            if (moodIcon) moodIcon.style.color = '#e67e22';
         } else {
             moodBarFill.style.background = 'linear-gradient(90deg, #c0392b, #8e44ad)';
-            moodIcon.textContent = '😾';
+            moodBarFill.style.boxShadow = '0 0 10px rgba(192, 57, 43, 0.8)';
+            if (moodIcon) moodIcon.style.color = '#c0392b';
         }
     }
     
     if (feedBtn) {
         feedBtn.addEventListener('click', () => {
             if (catMood >= 100) {
-                alert("แมวอิ่มมากแล้ว พุงจะแตก!");
+                alert("พลังเวทมนตร์เต็มเปี่ยมแล้ว!");
                 return;
             }
             catMood = Math.min(100, catMood + 30);
             updateMoodUI();
             
-            // Feeding animation (throw fish)
-            const fish = document.createElement('div');
-            fish.textContent = '🐟';
-            fish.style.position = 'absolute';
-            fish.style.fontSize = '2rem';
-            fish.style.zIndex = '100';
+            // Feeding animation (magic orb)
+            const orb = document.createElement('div');
+            orb.classList.add('magic-orb-projectile');
             const rect = feedBtn.getBoundingClientRect();
-            fish.style.left = `${rect.left + rect.width/2}px`;
-            fish.style.top = `${rect.top}px`;
-            fish.style.transition = 'all 0.5s cubic-bezier(0.25, 1, 0.5, 1)';
-            document.body.appendChild(fish);
+            orb.style.left = `${rect.left + rect.width/2}px`;
+            orb.style.top = `${rect.top}px`;
+            document.body.appendChild(orb);
             
             setTimeout(() => {
                 const catRect = document.getElementById('catButton').getBoundingClientRect();
-                fish.style.left = `${catRect.left + catRect.width/2}px`;
-                fish.style.top = `${catRect.top + catRect.height/2}px`;
-                fish.style.transform = 'scale(0) rotate(360deg)';
-                fish.style.opacity = '0';
+                orb.style.left = `${catRect.left + catRect.width/2}px`;
+                orb.style.top = `${catRect.top + catRect.height/2}px`;
+                orb.style.transform = 'scale(0)';
+                orb.style.opacity = '0';
             }, 50);
             
-            setTimeout(() => fish.remove(), 550);
+            setTimeout(() => orb.remove(), 550);
         });
     }
     
