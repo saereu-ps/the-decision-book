@@ -800,18 +800,18 @@ input[type="text"]:focus {
 }
 
 /* --- Hold to Charge State --- */
-.fortune-teller-scene.charging {
+.card-front.charging {
     animation: chargingRumble 0.1s infinite;
 }
 
-.fortune-teller-scene.charging .magic-glow-overlay {
+.card-front.charging .magic-glow-overlay {
     opacity: 1;
     background: radial-gradient(circle, var(--orb-glow-intense) 0%, transparent 60%);
     animation: pulseGlow 1s infinite, spinGlow 2s linear infinite;
     transform: scale(1.5);
 }
 
-.fortune-teller-scene.charging .mystic-cat-img {
+.card-front.charging .mystic-cat-img {
     filter: drop-shadow(0 0 40px var(--orb-glow-intense)) brightness(1.5);
     transform: scale(1.05);
 }
