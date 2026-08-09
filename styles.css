@@ -964,20 +964,25 @@ input[type="text"]:focus {
 /* --- Hold to Charge State --- */
 .card-front.charging {
     animation: chargingRumble 0.12s cubic-bezier(.36,.07,.19,.97) infinite;
-    box-shadow: 0 0 50px rgba(247, 194, 84, 0.6), 0 0 100px rgba(255, 255, 255, 0.3) inset;
+    box-shadow: 0 0 60px rgba(247, 194, 84, 0.4), 0 0 20px rgba(247, 194, 84, 0.6), inset 0 0 40px rgba(247, 194, 84, 0.3);
     z-index: 20;
 }
 
 .card-front.charging .magic-glow-overlay {
     opacity: 1;
-    background: radial-gradient(circle, var(--orb-glow-intense) 0%, rgba(255,255,255,0.6) 30%, transparent 70%);
-    animation: pulseGlow 0.4s infinite alternate, spinGlow 1s linear infinite;
-    transform: translateX(-50%) scale(2.2) !important;
+    background: radial-gradient(circle, rgba(247, 194, 84, 0.6) 0%, rgba(247, 194, 84, 0.2) 40%, transparent 70%);
+    animation: auraPulse 1.2s ease-in-out infinite alternate;
+    transform: translateX(-50%) scale(1.5) !important;
 }
 
 .card-front.charging .mystic-cat-img {
-    filter: drop-shadow(0 0 60px var(--orb-glow-intense)) brightness(1.8) contrast(1.1);
-    transform: scale(1.08);
+    filter: drop-shadow(0 0 30px rgba(247, 194, 84, 0.8)) brightness(1.3) contrast(1.1);
+    transform: scale(1.05);
+}
+
+@keyframes auraPulse {
+    0% { opacity: 0.6; transform: translateX(-50%) scale(1.4) !important; }
+    100% { opacity: 1; transform: translateX(-50%) scale(1.6) !important; }
 }
 
 @keyframes chargingRumble {
