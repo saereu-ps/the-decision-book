@@ -450,7 +450,7 @@ catScene.addEventListener('mouseleave', () => {
 
 catScene.addEventListener('mouseenter', () => {
     if (window.cardTiltWrapper && !tarotCard.classList.contains('flipped')) {
-        window.cardTiltWrapper.style.transition = `none`; 
+        window.cardTiltWrapper.style.transition = `transform 0.1s ease-out`; 
     }
 });
 
@@ -767,10 +767,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     <div class="mood-bar-fill" id="moodBarFill"></div>
                 </div>
             </div>
-            <button id="feedBtn" class="feed-btn" title="ฟื้นฟูพลังเวท">
-                <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor" stroke="none" class="mystic-svg">
-                    <path d="M12 2 L14 10 L22 12 L14 14 L12 22 L10 14 L2 12 L10 10 Z"></path>
-                </svg> ฟื้นฟูพลังเวท
+            <button id="feedBtn" class="feed-btn" title="มอบปลาทูวิเศษ">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" class="mystic-svg">
+                    <path d="M22 12 L16 6 C13 3 8 3 5 6 L2 3 L2 21 L5 18 C8 21 13 21 16 18 Z M14 12 A1 1 0 1 1 14.001 11.999 Z"></path>
+                </svg> มอบปลาทูวิเศษ
             </button>
         </div>`;
         document.body.insertAdjacentHTML('afterbegin', uiHtml);
@@ -808,19 +808,31 @@ document.addEventListener('DOMContentLoaded', () => {
             catMood = Math.min(100, catMood + 30);
             updateMoodUI();
             
-            // Feeding animation (magic orb)
+            // Feeding animation (magic fish orb)
             const orb = document.createElement('div');
             orb.classList.add('magic-orb-projectile');
+            orb.innerHTML = `
+                <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="var(--gold)" stroke-width="1.5">
+                    <path d="M22 12 L16 6 C13 3 8 3 5 6 L2 3 L2 21 L5 18 C8 21 13 21 16 18 Z"></path>
+                </svg>
+            `;
+            orb.style.display = 'flex';
+            orb.style.alignItems = 'center';
+            orb.style.justifyContent = 'center';
+            orb.style.background = 'transparent';
+            orb.style.boxShadow = 'none';
+            orb.style.filter = 'drop-shadow(0 0 10px var(--gold))';
+            
             const rect = feedBtn.getBoundingClientRect();
-            orb.style.left = `${rect.left + rect.width/2}px`;
-            orb.style.top = `${rect.top}px`;
+            orb.style.left = `${rect.left + rect.width/2 - 12}px`;
+            orb.style.top = `${rect.top - 12}px`;
             document.body.appendChild(orb);
             
             setTimeout(() => {
                 const catRect = document.getElementById('catButton').getBoundingClientRect();
-                orb.style.left = `${catRect.left + catRect.width/2}px`;
-                orb.style.top = `${catRect.top + catRect.height/2}px`;
-                orb.style.transform = 'scale(0)';
+                orb.style.left = `${catRect.left + catRect.width/2 - 12}px`;
+                orb.style.top = `${catRect.top + catRect.height/2 - 12}px`;
+                orb.style.transform = 'scale(0) rotate(-45deg)';
                 orb.style.opacity = '0';
             }, 50);
             
