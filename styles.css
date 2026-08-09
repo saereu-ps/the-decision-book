@@ -157,14 +157,15 @@ body {
     100% { opacity: 1; filter: brightness(1.5); }
 }
 
-/* Theme Toggle - Top Right Inside Container */
+/* Theme Toggle - Top Right */
 .theme-toggle-container {
-    display: flex;
-    justify-content: flex-end;
-    gap: 10px;
-    margin-bottom: -10px;
-    position: relative;
+    position: absolute;
+    top: 30px;
+    right: 30px;
     z-index: 50;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
 }
 
 .theme-checkbox {
@@ -695,8 +696,12 @@ input[type="text"]:focus {
 
     /* Mobile Theme Toggle Redesign (Circular Buttons) */
     .theme-toggle-container {
+        position: fixed;
+        top: 20px;
+        right: 15px;
+        flex-direction: row;
         gap: 12px;
-        margin-bottom: 5px; /* slight space above title */
+        z-index: 999999;
     }
 
     .theme-label {
