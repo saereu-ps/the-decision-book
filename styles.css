@@ -821,18 +821,46 @@ input[type="text"]:focus {
     body {
         align-items: flex-start;
         padding-top: 80px;
-        padding-bottom: 20px;
+        padding-bottom: 100px; /* Space for the bottom dock */
     }
     
-
-
-    /* Mobile Cat Status UI */
+    /* Mobile Cat Status UI - App Dock Style */
     .cat-status-container {
-        top: 20px;
-        left: 15px;
-        transform: scale(0.8);
-        transform-origin: top left;
-        gap: 8px;
+        position: fixed;
+        top: auto;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        flex-direction: row;
+        width: 92%;
+        max-width: 380px;
+        justify-content: space-between;
+        align-items: center;
+        background: rgba(15, 8, 25, 0.85);
+        border: 1px solid rgba(212, 175, 55, 0.3);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.9), inset 0 0 15px rgba(212, 175, 55, 0.15);
+        padding: 10px 15px;
+        border-radius: 40px;
+        backdrop-filter: blur(15px);
+        z-index: 9999;
+        gap: 0;
+    }
+
+    .cat-status-container .mood-bar-wrapper {
+        background: transparent;
+        border: none;
+        box-shadow: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .cat-status-container .feed-btn {
+        background: rgba(212, 175, 55, 0.1);
+        border-color: rgba(212, 175, 55, 0.5);
+        font-size: 0.8rem;
+        padding: 8px 12px;
+        white-space: nowrap;
+        margin-left: 10px;
     }
 
     /* Mobile Theme Toggle Redesign (Circular Buttons) */
