@@ -409,7 +409,9 @@ input[type="text"]:focus {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    border-radius: 24px; /* Match card-face */
+    border-radius: 24px;
+    border: 2px solid var(--glow-color); /* Restored Hologram border */
+    box-shadow: 0 15px 35px rgba(0,0,0,0.6), inset 0 0 20px var(--glow-color); /* Restored Hologram glow */
     transition: filter 0.3s ease;
     z-index: 2;
     animation: breatheCat 3s infinite alternate ease-in-out;
@@ -841,4 +843,17 @@ body.theme-rude .mystic-cat-img {
 
 body.theme-rude .scene:hover .mystic-cat-img {
     filter: sepia(1) hue-rotate(320deg) saturate(3) brightness(1.1) contrast(1.5);
+}
+
+/* Simulated Audio React for Microphone */
+@keyframes micGlowSync {
+    0%, 100% { transform: translateX(-50%) scale(1.1); opacity: 0.6; }
+    20% { transform: translateX(-50%) scale(1.4); opacity: 0.9; }
+    40% { transform: translateX(-50%) scale(1.2); opacity: 0.7; }
+    60% { transform: translateX(-50%) scale(1.6); opacity: 1; }
+    80% { transform: translateX(-50%) scale(1.3); opacity: 0.8; }
+}
+
+.magic-glow-overlay.listening-active {
+    animation: micGlowSync 1.5s infinite ease-in-out !important;
 }

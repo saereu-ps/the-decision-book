@@ -1066,9 +1066,9 @@ let parallaxY = 0;
 // Mouse movement parallax (Desktop)
 document.addEventListener('mousemove', (e) => {
     if (!dynamicBg) return;
-    parallaxX = (e.clientX / window.innerWidth - 0.5) * 30; // Max 15px shift
-    parallaxY = (e.clientY / window.innerHeight - 0.5) * 30;
-    dynamicBg.style.transform = `translate(${parallaxX}px, ${parallaxY}px)`;
+    parallaxX = (e.clientX / window.innerWidth - 0.5) * -50; 
+    parallaxY = (e.clientY / window.innerHeight - 0.5) * -50;
+    dynamicBg.style.backgroundPosition = `calc(50% + ${parallaxX}px) calc(50% + ${parallaxY}px)`;
 });
 
 // Device orientation parallax (Mobile)
@@ -1076,11 +1076,11 @@ window.addEventListener('deviceorientation', (e) => {
     if (!dynamicBg || !e.gamma || !e.beta) return;
     const maxTilt = 30; 
     let x = Math.max(-maxTilt, Math.min(maxTilt, e.gamma));
-    let y = Math.max(-maxTilt, Math.min(maxTilt, e.beta - 45)); // Offset beta for natural holding angle
+    let y = Math.max(-maxTilt, Math.min(maxTilt, e.beta - 45)); 
     
-    parallaxX = (x / maxTilt) * 20;
-    parallaxY = (y / maxTilt) * 20;
-    dynamicBg.style.transform = `translate(${parallaxX}px, ${parallaxY}px)`;
+    parallaxX = (x / maxTilt) * -30;
+    parallaxY = (y / maxTilt) * -30;
+    dynamicBg.style.backgroundPosition = `calc(50% + ${parallaxX}px) calc(50% + ${parallaxY}px)`;
 });
 
 // --- Magic Particle Engine (Phase 3) ---
@@ -1149,15 +1149,25 @@ if (particleCanvas) {
     animateParticles();
 }
 
-// --- Voice Input & Audio React (Phase 5) ---
+// --- Voice Input & Simulated Audio React (Phase 5) ---
 const micBtn = document.getElementById('micBtn');
 const SpeechRecognitionAPI = window.SpeechRecognition || window.webkitSpeechRecognition;
 
 let isVoiceListening = false;
 
+function startSimulatedGlow() {
+    const crystalGlow = document.getElementById('crystalGlow');
+    if (crystalGlow) crystalGlow.classList.add('listening-active');
+}
+
+function stopSimulatedGlow() {
+    const crystalGlow = document.getElementById('crystalGlow');
+    if (crystalGlow) crystalGlow.classList.remove('listening-active');
+}
+
 if (SpeechRecognitionAPI && micBtn) {
     const recognition = new SpeechRecognitionAPI();
-    recognition.lang = 'th-TH'; // Default to Thai
+    recognition.lang = 'th-TH'; 
     recognition.interimResults = false;
     recognition.maxAlternatives = 1;
     
@@ -1165,7 +1175,12 @@ if (SpeechRecognitionAPI && micBtn) {
         if (isVoiceListening) {
             recognition.stop();
         } else {
-            recognition.start();
+            try {
+                recognition.start();
+            } catch(e) {
+                console.error("Mic start error:", e);
+                alert("ระบบไมโครโฟนไม่พร้อมใช้งาน กรุณาตรวจสอบการอนุญาตใช้งานไมโครโฟนในเบราว์เซอร์ของคุณ");
+            }
         }
     });
     
@@ -1173,8 +1188,8 @@ if (SpeechRecognitionAPI && micBtn) {
         isVoiceListening = true;
         micBtn.classList.add('listening');
         const questionInput = document.getElementById('questionInput');
-        if(questionInput) questionInput.placeholder = "กำลังฟัง...";
-        initAudioReact(); // Start glowing to voice
+        if(questionInput) questionInput.placeholder = "พูดคำถามของคุณ...";
+        startSimulatedGlow();
     });
     
     recognition.addEventListener('end', () => {
@@ -1182,7 +1197,7 @@ if (SpeechRecognitionAPI && micBtn) {
         micBtn.classList.remove('listening');
         const questionInput = document.getElementById('questionInput');
         if(questionInput) questionInput.placeholder = "พิมพ์คำถามที่สงสัย...";
-        stopAudioReact();
+        stopSimulatedGlow();
     });
     
     recognition.addEventListener('result', (e) => {
@@ -1197,69 +1212,14 @@ if (SpeechRecognitionAPI && micBtn) {
         micBtn.classList.remove('listening');
         const questionInput = document.getElementById('questionInput');
         if(questionInput) questionInput.placeholder = "พิมพ์คำถามที่สงสัย...";
-        stopAudioReact();
+        stopSimulatedGlow();
+        
+        if(e.error === 'not-allowed') {
+            alert("คุณยังไม่ได้อนุญาตให้เบราว์เซอร์ใช้ไมโครโฟนครับ");
+        }
     });
 } else if (micBtn) {
-    micBtn.style.display = 'none'; // Hide if not supported
-}
-
-// Audio React (Crystal Ball Glow)
-let audioReactStream = null;
-let audioReactCtx = null;
-let analyser = null;
-let audioReactSource = null;
-let audioReactTimer = null;
-
-async function initAudioReact() {
-    try {
-        audioReactStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
-        audioReactCtx = new (window.AudioContext || window.webkitAudioContext)();
-        analyser = audioReactCtx.createAnalyser();
-        analyser.fftSize = 256;
-        audioReactSource = audioReactCtx.createMediaStreamSource(audioReactStream);
-        audioReactSource.connect(analyser);
-        
-        const dataArray = new Uint8Array(analyser.frequencyBinCount);
-        
-        function updateGlow() {
-            if (!isVoiceListening) return;
-            analyser.getByteFrequencyData(dataArray);
-            let sum = 0;
-            for(let i=0; i<dataArray.length; i++) sum += dataArray[i];
-            const average = sum / dataArray.length;
-            
-            const scale = 1 + (average / 255) * 1.5;
-            const crystalGlow = document.getElementById('crystalGlow');
-            if (crystalGlow) {
-                crystalGlow.style.transform = `translateX(-50%) scale(${scale})`;
-                crystalGlow.style.opacity = Math.min(1, 0.5 + (average / 255));
-            }
-            
-            audioReactTimer = requestAnimationFrame(updateGlow);
-        }
-        updateGlow();
-    } catch (e) {
-        console.error("Mic permission denied or error:", e);
-    }
-}
-
-function stopAudioReact() {
-    if (audioReactTimer) cancelAnimationFrame(audioReactTimer);
-    if (audioReactSource) {
-        audioReactSource.disconnect();
-        audioReactSource = null;
-    }
-    if (audioReactCtx) {
-        audioReactCtx.close();
-        audioReactCtx = null;
-    }
-    if (audioReactStream) {
-        audioReactStream.getTracks().forEach(track => track.stop());
-        audioReactStream = null;
-    }
-    const crystalGlow = document.getElementById('crystalGlow');
-    if (crystalGlow) {
-        crystalGlow.style.transform = `translateX(-50%) scale(1)`;
-        crystalGlow.style.opacity = 0.5;
-    }
+    micBtn.addEventListener('click', () => {
+        alert("ขออภัย เบราว์เซอร์ของคุณไม่รองรับระบบสั่งงานด้วยเสียงครับ (แนะนำ Chrome หรือ Safari รุ่นล่าสุด)");
+    });
 }
