@@ -386,8 +386,7 @@ document.addEventListener('mousemove', (e) => {
 });
 
 // 3D Holographic Tilt Effect for Desktop
-const catScene = document.getElementById('catButton');
-const catImg = document.getElementById('catImage');
+const catScene = document.getElementById('catButton'); // This is .card-face.card-front
 const cardReflection = document.getElementById('cardReflection');
 
 // --- Gyroscope Parallax for Mobile ---
@@ -400,43 +399,51 @@ window.addEventListener('deviceorientation', (e) => {
     let yTilt = Math.max(-30, Math.min(30, e.beta - 45)); // assume resting phone angle is ~45deg
     
     // Move background opposite to tilt
-    dynamicBg.style.transform = `translate(${xTilt * -1}px, ${yTilt * -1}px)`;
+    dynamicBg.style.backgroundPosition = `calc(50% + ${xTilt * -2}px) calc(50% + ${yTilt * -2}px)`;
     
     // Tilt the cat
-    catImg.style.transform = `scale(1.05) rotateX(${yTilt * -0.5}deg) rotateY(${xTilt * 0.5}deg)`;
+    catScene.style.transform = `rotateX(${yTilt * -0.5}deg) rotateY(${xTilt * 0.5}deg)`;
     
     const bgPosX = 50 + (xTilt * 2);
     const bgPosY = 50 + (yTilt * 2);
-    cardReflection.style.backgroundPosition = `${bgPosX}% ${bgPosY}%`;
+    if(cardReflection) cardReflection.style.backgroundPosition = `${bgPosX}% ${bgPosY}%`;
 });
 
 catScene.addEventListener('mousemove', (e) => {
     // Get dimensions and center of the scene
     const rect = catScene.getBoundingClientRect();
-    const x = e.clientX - rect.left; // x position within the element.
-    const y = e.clientY - rect.top;  // y position within the element.
+    const x = e.clientX - rect.left; 
+    const y = e.clientY - rect.top;  
     
     // Calculate rotation (-15deg to 15deg)
     const xPct = (x / rect.width) - 0.5;
     const yPct = (y / rect.height) - 0.5;
     
-    // Invert X/Y for natural tilt: moving mouse right tilts right edge down (rotateY positive)
+    // Invert X/Y for natural tilt
     const rotateX = -yPct * 30; // max 15 deg
     const rotateY = xPct * 30;  // max 15 deg
     
-    catImg.style.transform = `scale(1.05) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+    catScene.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
     
     // Shift glossy foil reflection
     const bgPosX = 50 + (xPct * 100);
     const bgPosY = 50 + (yPct * 100);
-    cardReflection.style.backgroundPosition = `${bgPosX}% ${bgPosY}%`;
+    if(cardReflection) cardReflection.style.backgroundPosition = `${bgPosX}% ${bgPosY}%`;
+    
+    // Desktop Parallax for background
+    dynamicBg.style.backgroundPosition = `calc(50% + ${xPct * -50}px) calc(50% + ${yPct * -50}px)`;
 });
 
 catScene.addEventListener('mouseleave', () => {
     // Reset to normal when mouse leaves
-    catImg.style.transform = `scale(1) rotateX(0deg) rotateY(0deg)`;
-    catImg.style.transition = `transform 0.5s ease`; // add transition for smooth snap back
-    cardReflection.style.backgroundPosition = `100% 100%`;
+    catScene.style.transform = `rotateX(0deg) rotateY(0deg)`;
+    catScene.style.transition = `transform 0.5s ease`; 
+    if(cardReflection) cardReflection.style.backgroundPosition = `100% 100%`;
+    dynamicBg.style.backgroundPosition = `50% 50%`;
+});
+
+catScene.addEventListener('mouseenter', () => {
+    catScene.style.transition = `none`; 
 });
 
 catScene.addEventListener('mouseenter', () => {
@@ -1058,30 +1065,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 
-// --- Parallax Background Effect ---
-const dynamicBg = document.getElementById('dynamicBg');
-let parallaxX = 0;
-let parallaxY = 0;
-
-// Mouse movement parallax (Desktop)
-document.addEventListener('mousemove', (e) => {
-    if (!dynamicBg) return;
-    parallaxX = (e.clientX / window.innerWidth - 0.5) * -50; 
-    parallaxY = (e.clientY / window.innerHeight - 0.5) * -50;
-    dynamicBg.style.backgroundPosition = `calc(50% + ${parallaxX}px) calc(50% + ${parallaxY}px)`;
-});
-
-// Device orientation parallax (Mobile)
-window.addEventListener('deviceorientation', (e) => {
-    if (!dynamicBg || !e.gamma || !e.beta) return;
-    const maxTilt = 30; 
-    let x = Math.max(-maxTilt, Math.min(maxTilt, e.gamma));
-    let y = Math.max(-maxTilt, Math.min(maxTilt, e.beta - 45)); 
-    
-    parallaxX = (x / maxTilt) * -30;
-    parallaxY = (y / maxTilt) * -30;
-    dynamicBg.style.backgroundPosition = `calc(50% + ${parallaxX}px) calc(50% + ${parallaxY}px)`;
-});
+// (Duplicate Parallax block removed)
 
 // --- Magic Particle Engine (Phase 3) ---
 const particleCanvas = document.getElementById('magicParticles');
