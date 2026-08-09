@@ -157,6 +157,96 @@ body {
     100% { opacity: 1; filter: brightness(1.5); }
 }
 
+/* Cat Status - Top Left */
+.cat-status-container {
+    position: absolute;
+    top: 30px;
+    left: 30px;
+    z-index: 50;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.mood-bar-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(18, 14, 25, 0.7);
+    padding: 6px 12px;
+    border-radius: 20px;
+    border: 1px solid var(--gold);
+    backdrop-filter: blur(5px);
+}
+
+.mood-icon {
+    font-size: 1.2rem;
+}
+
+.mood-bar-bg {
+    width: 80px;
+    height: 10px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 5px;
+    overflow: hidden;
+}
+
+.mood-bar-fill {
+    height: 100%;
+    width: 100%;
+    background: linear-gradient(90deg, #ff4e50, #f9d423);
+    transition: width 0.3s ease, background 0.3s ease;
+}
+
+.feed-btn {
+    background: rgba(18, 14, 25, 0.7);
+    color: var(--text-color);
+    border: 1px solid var(--gold);
+    padding: 6px 12px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-family: 'Prompt', sans-serif;
+    font-size: 0.9rem;
+    transition: all 0.2s;
+    backdrop-filter: blur(5px);
+}
+
+.feed-btn:hover {
+    background: var(--gold);
+    color: #000;
+    transform: scale(1.05);
+}
+
+.feed-btn:active {
+    transform: scale(0.95);
+}
+
+/* Interactive Reactions */
+body.reaction-positive .dynamic-bg {
+    background-color: #3e1b38;
+}
+
+body.reaction-negative .dynamic-bg {
+    background-color: #1a0b12;
+}
+
+body.reaction-angry .dynamic-bg {
+    background-color: #2a0808;
+}
+
+body.reaction-positive .particles {
+    filter: hue-rotate(280deg) brightness(1.5);
+}
+
+body.reaction-negative .particles {
+    filter: hue-rotate(180deg) brightness(0.5);
+}
+
+body.reaction-angry .particles {
+    filter: hue-rotate(330deg) brightness(1.8);
+}
+
+
 /* Theme Toggle - Top Right */
 .theme-toggle-container {
     position: absolute;
@@ -801,26 +891,29 @@ input[type="text"]:focus {
 
 /* --- Hold to Charge State --- */
 .card-front.charging {
-    animation: chargingRumble 0.1s infinite;
+    animation: chargingRumble 0.12s cubic-bezier(.36,.07,.19,.97) infinite;
+    box-shadow: 0 0 50px rgba(247, 194, 84, 0.6), 0 0 100px rgba(255, 255, 255, 0.3) inset;
+    z-index: 20;
 }
 
 .card-front.charging .magic-glow-overlay {
     opacity: 1;
-    background: radial-gradient(circle, var(--orb-glow-intense) 0%, transparent 60%);
-    animation: pulseGlow 1s infinite, spinGlow 2s linear infinite;
-    transform: translateX(-50%) scale(1.5) !important;
+    background: radial-gradient(circle, var(--orb-glow-intense) 0%, rgba(255,255,255,0.6) 30%, transparent 70%);
+    animation: pulseGlow 0.4s infinite alternate, spinGlow 1s linear infinite;
+    transform: translateX(-50%) scale(2.2) !important;
 }
 
 .card-front.charging .mystic-cat-img {
-    filter: drop-shadow(0 0 40px var(--orb-glow-intense)) brightness(1.5);
-    transform: scale(1.05);
+    filter: drop-shadow(0 0 60px var(--orb-glow-intense)) brightness(1.8) contrast(1.1);
+    transform: scale(1.08);
 }
 
 @keyframes chargingRumble {
-    0% { transform: translate(0, 0) rotate(0deg); }
-    25% { transform: translate(-2px, 2px) rotate(-1deg); }
-    50% { transform: translate(2px, -2px) rotate(1deg); }
-    75% { transform: translate(-2px, -2px) rotate(0deg); }
+    0% { transform: translate(0, 0) rotate(0deg) scale(1.05); }
+    25% { transform: translate(-4px, 4px) rotate(-1.5deg) scale(1.05); }
+    50% { transform: translate(4px, -4px) rotate(1.5deg) scale(1.05); }
+    75% { transform: translate(-4px, -4px) rotate(0deg) scale(1.05); }
+    100% { transform: translate(4px, 4px) rotate(-1deg) scale(1.05); }
 }
 
 /* Phase 4: Glitch & Demonic Transition */

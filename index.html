@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DESTINY'S CAT | The Decision Book</title>
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="styles.css?v=3">
     <link href="https://fonts.googleapis.com/css2?family=Chonburi&family=Lora:ital,wght@0,400;0,700;1,400&family=Prompt:wght@300;400;600&display=swap" rel="stylesheet">
 </head>
 <body>
@@ -13,6 +13,18 @@
     <div class="dynamic-bg" id="dynamicBg">
         <div class="particles" id="particles"></div>
         <div class="ambient-glow"></div>
+    </div>
+    <!-- Cat Status at top left -->
+    <div class="cat-status-container">
+        <div class="mood-bar-wrapper" title="อารมณ์ท่านเหมียว">
+            <div class="mood-icon" id="moodIcon">😼</div>
+            <div class="mood-bar-bg">
+                <div class="mood-bar-fill" id="moodBarFill"></div>
+            </div>
+        </div>
+        <button id="feedBtn" class="feed-btn" title="ให้ปลาทูเพิ่มอารมณ์ดี">
+            🐟 ให้อาหาร
+        </button>
     </div>
     
     <!-- Theme Toggles at top right -->
@@ -128,6 +140,6 @@
     <!-- Custom Magical Cursor -->
     <div class="magic-cursor" id="magicCursor"></div>
 
-    <script src="script.js"></script>
+    <script src="script.js?v=3"></script>
 </body>
 </html>

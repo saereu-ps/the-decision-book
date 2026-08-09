@@ -401,8 +401,10 @@ window.addEventListener('deviceorientation', (e) => {
     // Move background opposite to tilt
     dynamicBg.style.backgroundPosition = `calc(50% + ${xTilt * -2}px) calc(50% + ${yTilt * -2}px)`;
     
-    // Tilt the cat
-    catScene.style.transform = `rotateX(${yTilt * -0.5}deg) rotateY(${xTilt * 0.5}deg)`;
+    // Tilt the wrapper
+    if (window.cardTiltWrapper && !tarotCard.classList.contains('flipped')) {
+        window.cardTiltWrapper.style.transform = `rotateX(${yTilt * -0.5}deg) rotateY(${xTilt * 0.5}deg)`;
+    }
     
     const bgPosX = 50 + (xTilt * 2);
     const bgPosY = 50 + (yTilt * 2);
@@ -423,7 +425,9 @@ catScene.addEventListener('mousemove', (e) => {
     const rotateX = -yPct * 30; // max 15 deg
     const rotateY = xPct * 30;  // max 15 deg
     
-    catScene.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+    if (window.cardTiltWrapper && !tarotCard.classList.contains('flipped')) {
+        window.cardTiltWrapper.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+    }
     
     // Shift glossy foil reflection
     const bgPosX = 50 + (xPct * 100);
@@ -436,14 +440,18 @@ catScene.addEventListener('mousemove', (e) => {
 
 catScene.addEventListener('mouseleave', () => {
     // Reset to normal when mouse leaves
-    catScene.style.transform = `rotateX(0deg) rotateY(0deg)`;
-    catScene.style.transition = `transform 0.5s ease`; 
+    if (window.cardTiltWrapper && !tarotCard.classList.contains('flipped')) {
+        window.cardTiltWrapper.style.transform = `rotateX(0deg) rotateY(0deg)`;
+        window.cardTiltWrapper.style.transition = `transform 0.5s ease`; 
+    }
     if(cardReflection) cardReflection.style.backgroundPosition = `100% 100%`;
     dynamicBg.style.backgroundPosition = `50% 50%`;
 });
 
 catScene.addEventListener('mouseenter', () => {
-    catScene.style.transition = `none`; 
+    if (window.cardTiltWrapper && !tarotCard.classList.contains('flipped')) {
+        window.cardTiltWrapper.style.transition = `none`; 
+    }
 });
 
 catScene.addEventListener('mouseenter', () => {
@@ -711,9 +719,27 @@ document.addEventListener('DOMContentLoaded', () => {
     document.addEventListener('click', initGyro);
     document.addEventListener('touchend', initGyro);
 
-    const catButton = document.getElementById('catButton');
+    const mainScene = document.getElementById('mainScene');
     const tarotCard = document.getElementById('tarotCard');
-    const questionInput = document.getElementById('questionInput');
+    const catScene = document.getElementById('catButton');
+    
+    // Wrap tarotCard in a tilt wrapper to decouple 3D tilt from flip animation
+    if (tarotCard && tarotCard.parentNode === mainScene && !document.getElementById('cardTiltWrapper')) {
+        const wrapper = document.createElement('div');
+        wrapper.id = 'cardTiltWrapper';
+        wrapper.style.width = '100%';
+        wrapper.style.height = '100%';
+        wrapper.style.transformStyle = 'preserve-3d';
+        wrapper.style.position = 'relative';
+        
+        mainScene.insertBefore(wrapper, tarotCard);
+        wrapper.appendChild(tarotCard);
+        window.cardTiltWrapper = wrapper;
+    } else {
+        window.cardTiltWrapper = document.getElementById('cardTiltWrapper') || tarotCard;
+    }
+
+    const catImg = document.getElementById('catImage');
     const askAgainBtn = document.getElementById('askAgainBtn');
     const flashBang = document.getElementById('flashBang');
     const magicExplosion = document.getElementById('magicExplosion');
@@ -722,6 +748,82 @@ document.addEventListener('DOMContentLoaded', () => {
     const questionDisplay = document.getElementById('questionDisplay');
     const answerText = document.getElementById('answerText');
     const themeSwitch = document.getElementById('themeSwitch');
+    
+    // --- Cat Mood System ---
+    let catMood = 100;
+    
+    // Auto-inject UI if not present in HTML to bypass caching
+    if (!document.querySelector('.cat-status-container')) {
+        const uiHtml = `
+        <div class="cat-status-container">
+            <div class="mood-bar-wrapper" title="อารมณ์ท่านเหมียว">
+                <div class="mood-icon" id="moodIcon">😼</div>
+                <div class="mood-bar-bg">
+                    <div class="mood-bar-fill" id="moodBarFill"></div>
+                </div>
+            </div>
+            <button id="feedBtn" class="feed-btn" title="ให้ปลาทูเพิ่มอารมณ์ดี">
+                🐟 ให้อาหาร
+            </button>
+        </div>`;
+        document.body.insertAdjacentHTML('afterbegin', uiHtml);
+    }
+
+    const moodBarFill = document.getElementById('moodBarFill');
+    const moodIcon = document.getElementById('moodIcon');
+    const feedBtn = document.getElementById('feedBtn');
+    
+    function updateMoodUI() {
+        if (!moodBarFill) return;
+        moodBarFill.style.width = `${catMood}%`;
+        
+        if (catMood > 70) {
+            moodBarFill.style.background = 'linear-gradient(90deg, #f9d423, #ff4e50)';
+            moodIcon.textContent = '😻';
+        } else if (catMood > 30) {
+            moodBarFill.style.background = 'linear-gradient(90deg, #f1c40f, #e67e22)';
+            moodIcon.textContent = '😼';
+        } else {
+            moodBarFill.style.background = 'linear-gradient(90deg, #c0392b, #8e44ad)';
+            moodIcon.textContent = '😾';
+        }
+    }
+    
+    if (feedBtn) {
+        feedBtn.addEventListener('click', () => {
+            if (catMood >= 100) {
+                alert("แมวอิ่มมากแล้ว พุงจะแตก!");
+                return;
+            }
+            catMood = Math.min(100, catMood + 30);
+            updateMoodUI();
+            
+            // Feeding animation (throw fish)
+            const fish = document.createElement('div');
+            fish.textContent = '🐟';
+            fish.style.position = 'absolute';
+            fish.style.fontSize = '2rem';
+            fish.style.zIndex = '100';
+            const rect = feedBtn.getBoundingClientRect();
+            fish.style.left = `${rect.left + rect.width/2}px`;
+            fish.style.top = `${rect.top}px`;
+            fish.style.transition = 'all 0.5s cubic-bezier(0.25, 1, 0.5, 1)';
+            document.body.appendChild(fish);
+            
+            setTimeout(() => {
+                const catRect = document.getElementById('catButton').getBoundingClientRect();
+                fish.style.left = `${catRect.left + catRect.width/2}px`;
+                fish.style.top = `${catRect.top + catRect.height/2}px`;
+                fish.style.transform = 'scale(0) rotate(360deg)';
+                fish.style.opacity = '0';
+            }, 50);
+            
+            setTimeout(() => fish.remove(), 550);
+        });
+    }
+    
+    // Initial UI update
+    updateMoodUI();
     
     // Magic Typewriter Effect
     let typingTimer;
@@ -834,8 +936,8 @@ document.addEventListener('DOMContentLoaded', () => {
     let consecutiveTaps = 0;
     let tapTimer = null;
 
-    function startCharging() {
-        if (isAnimating) return;
+    function startCharging(e) {
+        if (isAnimating || isCharging) return;
         
         isCharging = true;
         chargeStartTime = Date.now();
@@ -915,9 +1017,29 @@ document.addEventListener('DOMContentLoaded', () => {
     catScene.addEventListener('mouseleave', () => stopCharging(false));
     catScene.addEventListener('touchcancel', () => stopCharging(false));
 
+    function getAnswerCategory(answer) {
+        if (catMood <= 20 || refuseResponses.includes(answer) || annoyedResponses.includes(answer)) return 'angry';
+        
+        const negativeKeywords = ["อย่า", "หยุด", "พินาศ", "ไม่มีทาง", "ถอย", "ไม่", "หายนะ", "ตัน", "พัง", "หนี", "บ้ง", "เหนื่อย", "ซวย", "บรรลัย", "ชิบหาย", "เลวร้าย", "ล้มเลิก", "ผิด", "เสียเวลา", "ดับอนาถ", "แย่"];
+        const positiveKeywords = ["แน่นอน", "ลุย", "ใช่", "ดีเยี่ยม", "สำเร็จ", "ยอดเยี่ยม", "ชนะ", "ผ่าน", "จัดไป", "รวย", "ปัง", "เอาเลย", "ไฟเขียว", "โชคชะตา", "โอกาส", "ดี"];
+        
+        for (let word of negativeKeywords) {
+            if (answer.includes(word)) return 'negative';
+        }
+        for (let word of positiveKeywords) {
+            if (answer.includes(word)) return 'positive';
+        }
+        return 'neutral';
+    }
+
     function executeOracleReveal() {
         if (isAnimating) return;
         isAnimating = true;
+        
+        // Decrease mood per question
+        catMood = Math.max(0, catMood - 15);
+        updateMoodUI();
+        
         askCount++;
         catScene.classList.add('animating');
         
@@ -943,10 +1065,10 @@ document.addEventListener('DOMContentLoaded', () => {
         // --- Cat Mood System ---
         let finalAnswerToReveal = randomAnswerObj;
         
-        if (askCount >= 10) {
+        if (catMood <= 20) {
             // Cat REFUSES to answer
             finalAnswerToReveal = refuseResponses[Math.floor(Math.random() * refuseResponses.length)];
-        } else if (askCount >= 5) {
+        } else if (catMood <= 50) {
             // Cat is ANNOYED (50% chance to override)
             if (Math.random() > 0.5) {
                 finalAnswerToReveal = annoyedResponses[Math.floor(Math.random() * annoyedResponses.length)];
@@ -955,7 +1077,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // --- Time-based System (00:00 - 03:59) ---
         const currentHour = new Date().getHours();
-        if (askCount < 5 && currentHour >= 0 && currentHour < 4) {
+        if (catMood > 20 && currentHour >= 0 && currentHour < 4) {
             const lateNightResponses = [
                 "เวลานี้อย่าเพิ่งถามเลย... บางเรื่องปล่อยให้มืดมิดไปเถอะ",
                 "ดึกป่านนี้แล้ว ไปนอนเถอะนะ แมวก็ง่วง",
@@ -970,7 +1092,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         // --- Secret Easter Eggs (only if cat is not in mood override) ---
-        if (askCount < 10) {
+        if (catMood > 50) {
             const qLower = question.toLowerCase();
             if (qLower.includes("หิว") || qLower.includes("กินอะไรดี") || qLower.includes("กินไรดี")) {
                 finalAnswerToReveal = "แมวแนะนำให้ไปหาปลาทูทอดกินนะ เมี๊ยว~";
@@ -1016,6 +1138,9 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
 
+        // Determine Reaction
+        const category = getAnswerCategory(finalAnswerToReveal);
+        
         // Dramatic Reveal Sequence
         flashBang.classList.remove('hidden');
         flashBang.classList.add('active');
@@ -1023,6 +1148,12 @@ document.addEventListener('DOMContentLoaded', () => {
         magicExplosion.classList.add('burst');
 
         setTimeout(() => {
+            // Apply visual reaction
+            document.body.classList.remove('reaction-positive', 'reaction-negative', 'reaction-angry');
+            if (category !== 'neutral') {
+                document.body.classList.add(`reaction-${category}`);
+            }
+
             // Fade out blackout
             flashBang.classList.remove('active');
             setTimeout(() => flashBang.classList.add('hidden'), 300);
@@ -1052,6 +1183,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Event Listeners for back of card
     askAgainBtn.addEventListener('click', () => {
         tarotCard.classList.remove('flipped');
+        document.body.classList.remove('reaction-positive', 'reaction-negative', 'reaction-angry');
         questionInput.value = '';
         questionInput.focus();
     });
@@ -1063,6 +1195,86 @@ document.addEventListener('DOMContentLoaded', () => {
             questionInput.blur();
         }
     });
+    // --- Voice Input & Simulated Audio React (Phase 5) ---
+    const micBtn = document.getElementById('micBtn');
+    const SpeechRecognitionAPI = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+    let isVoiceListening = false;
+
+    function startSimulatedGlow() {
+        if (crystalGlow) crystalGlow.classList.add('listening-active');
+    }
+
+    function stopSimulatedGlow() {
+        if (crystalGlow) crystalGlow.classList.remove('listening-active');
+    }
+
+    if (SpeechRecognitionAPI && micBtn) {
+        const recognition = new SpeechRecognitionAPI();
+        recognition.lang = 'th-TH'; 
+        recognition.interimResults = false;
+        recognition.maxAlternatives = 1;
+        
+        micBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            if (isVoiceListening) {
+                recognition.stop();
+            } else {
+                try {
+                    recognition.start();
+                } catch(err) {
+                    console.warn("Mic start error (might be already started):", err);
+                }
+            }
+        });
+        
+        recognition.addEventListener('start', () => {
+            isVoiceListening = true;
+            micBtn.classList.add('listening');
+            if(questionInputObj) questionInputObj.placeholder = "พูดคำถามของคุณ...";
+            startSimulatedGlow();
+        });
+        
+        recognition.addEventListener('end', () => {
+            isVoiceListening = false;
+            micBtn.classList.remove('listening');
+            if(questionInputObj) questionInputObj.placeholder = "พิมพ์คำถามที่สงสัย...";
+            stopSimulatedGlow();
+        });
+        
+        recognition.addEventListener('result', (e) => {
+            const transcript = e.results[0][0].transcript;
+            if(questionInputObj) {
+                questionInputObj.value = transcript;
+                // Auto-submit after voice input
+                setTimeout(() => {
+                    executeOracleReveal();
+                    questionInputObj.blur();
+                }, 600);
+            }
+        });
+        
+        recognition.addEventListener('error', (e) => {
+            if (e.error !== 'no-speech') {
+                console.error("Speech recognition error:", e.error);
+            }
+            
+            isVoiceListening = false;
+            micBtn.classList.remove('listening');
+            if(questionInputObj) questionInputObj.placeholder = "พิมพ์คำถามที่สงสัย...";
+            stopSimulatedGlow();
+            
+            if(e.error === 'not-allowed') {
+                alert("คุณยังไม่ได้อนุญาตให้เบราว์เซอร์ใช้ไมโครโฟนครับ");
+            }
+        });
+    } else if (micBtn) {
+        micBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            alert("ขออภัย เบราว์เซอร์ของคุณไม่รองรับระบบสั่งงานด้วยเสียงครับ (แนะนำ Chrome หรือ Safari รุ่นล่าสุด)");
+        });
+    }
+
 });
 
 // (Duplicate Parallax block removed)
@@ -1081,35 +1293,51 @@ window.addEventListener('resize', resizeCanvas);
 setTimeout(resizeCanvas, 100);
 
 class Particle {
-    constructor() {
-        this.x = particleCanvas.width / 2 + (Math.random() - 0.5) * 50;
-        this.y = particleCanvas.height - 70 + (Math.random() - 0.5) * 20;
-        this.size = Math.random() * 2.5 + 0.5;
-        this.speedX = (Math.random() - 0.5) * 1.5;
-        this.speedY = Math.random() * -2 - 0.5;
+    constructor(isCharging = false) {
+        this.isCharging = isCharging;
+        // When charging, particles spawn in a wider area and move more aggressively
+        this.x = particleCanvas.width / 2 + (Math.random() - 0.5) * (isCharging ? 150 : 50);
+        this.y = particleCanvas.height - 70 + (Math.random() - 0.5) * (isCharging ? 50 : 20);
+        this.size = Math.random() * (isCharging ? 4.5 : 2.5) + 0.5;
+        this.speedX = (Math.random() - 0.5) * (isCharging ? 4 : 1.5);
+        this.speedY = Math.random() * (isCharging ? -6 : -2) - 0.5;
         this.life = 1.0;
-        this.decay = Math.random() * 0.02 + 0.01;
+        this.decay = Math.random() * (isCharging ? 0.04 : 0.02) + 0.01;
+        // Change color to intense blue/white when charging, otherwise gold
+        this.r = isCharging ? 100 + Math.random() * 155 : 247;
+        this.g = isCharging ? 200 + Math.random() * 55 : 194;
+        this.b = isCharging ? 255 : 84;
     }
     update() {
         this.x += this.speedX;
         this.y += this.speedY;
         this.life -= this.decay;
-        this.speedX += (Math.random() - 0.5) * 0.2;
+        this.speedX += (Math.random() - 0.5) * (this.isCharging ? 0.5 : 0.2);
     }
     draw() {
         particleCtx.beginPath();
         particleCtx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-        particleCtx.fillStyle = `rgba(247, 194, 84, ${this.life})`;
-        particleCtx.shadowBlur = 10;
-        particleCtx.shadowColor = 'rgba(247, 194, 84, 1)';
+        particleCtx.fillStyle = `rgba(${this.r}, ${this.g}, ${this.b}, ${this.life})`;
+        particleCtx.shadowBlur = this.isCharging ? 20 : 10;
+        particleCtx.shadowColor = `rgba(${this.r}, ${this.g}, ${this.b}, 1)`;
         particleCtx.fill();
     }
 }
 
 function handleParticles() {
     if (!particleCanvas) return;
-    if (particlesArray.length < 50 && Math.random() < 0.3) {
-        particlesArray.push(new Particle());
+    
+    const catBtn = document.getElementById('catButton');
+    const isCharging = catBtn ? catBtn.classList.contains('charging') : false;
+    
+    const maxParticles = isCharging ? 150 : 50;
+    const spawnRate = isCharging ? 0.9 : 0.3;
+    
+    if (particlesArray.length < maxParticles && Math.random() < spawnRate) {
+        const spawnCount = isCharging ? 5 : 1;
+        for (let i = 0; i < spawnCount; i++) {
+            particlesArray.push(new Particle(isCharging));
+        }
     }
     
     for (let i = 0; i < particlesArray.length; i++) {
@@ -1133,77 +1361,3 @@ if (particleCanvas) {
     animateParticles();
 }
 
-// --- Voice Input & Simulated Audio React (Phase 5) ---
-const micBtn = document.getElementById('micBtn');
-const SpeechRecognitionAPI = window.SpeechRecognition || window.webkitSpeechRecognition;
-
-let isVoiceListening = false;
-
-function startSimulatedGlow() {
-    const crystalGlow = document.getElementById('crystalGlow');
-    if (crystalGlow) crystalGlow.classList.add('listening-active');
-}
-
-function stopSimulatedGlow() {
-    const crystalGlow = document.getElementById('crystalGlow');
-    if (crystalGlow) crystalGlow.classList.remove('listening-active');
-}
-
-if (SpeechRecognitionAPI && micBtn) {
-    const recognition = new SpeechRecognitionAPI();
-    recognition.lang = 'th-TH'; 
-    recognition.interimResults = false;
-    recognition.maxAlternatives = 1;
-    
-    micBtn.addEventListener('click', () => {
-        if (isVoiceListening) {
-            recognition.stop();
-        } else {
-            try {
-                recognition.start();
-            } catch(e) {
-                console.error("Mic start error:", e);
-                alert("ระบบไมโครโฟนไม่พร้อมใช้งาน กรุณาตรวจสอบการอนุญาตใช้งานไมโครโฟนในเบราว์เซอร์ของคุณ");
-            }
-        }
-    });
-    
-    recognition.addEventListener('start', () => {
-        isVoiceListening = true;
-        micBtn.classList.add('listening');
-        const questionInput = document.getElementById('questionInput');
-        if(questionInput) questionInput.placeholder = "พูดคำถามของคุณ...";
-        startSimulatedGlow();
-    });
-    
-    recognition.addEventListener('end', () => {
-        isVoiceListening = false;
-        micBtn.classList.remove('listening');
-        const questionInput = document.getElementById('questionInput');
-        if(questionInput) questionInput.placeholder = "พิมพ์คำถามที่สงสัย...";
-        stopSimulatedGlow();
-    });
-    
-    recognition.addEventListener('result', (e) => {
-        const transcript = e.results[0][0].transcript;
-        const questionInput = document.getElementById('questionInput');
-        if(questionInput) questionInput.value = transcript;
-    });
-    
-    recognition.addEventListener('error', (e) => {
-        console.error("Speech recognition error:", e.error);
-        isVoiceListening = false;
-        micBtn.classList.remove('listening');
-        const questionInput = document.getElementById('questionInput');
-        if(questionInput) questionInput.placeholder = "พิมพ์คำถามที่สงสัย...";
-        stopSimulatedGlow();
-        
-        if(e.error === 'not-allowed') {
-            alert("คุณยังไม่ได้อนุญาตให้เบราว์เซอร์ใช้ไมโครโฟนครับ");
-        }
-    });
-} else if (micBtn) {
-    micBtn.addEventListener('click', () => {
-        alert("ขออภัย เบราว์เซอร์ของคุณไม่รองรับระบบสั่งงานด้วยเสียงครับ (แนะนำ Chrome หรือ Safari รุ่นล่าสุด)");
-    });
-}
